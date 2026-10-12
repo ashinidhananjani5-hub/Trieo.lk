@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import brandLogo from '../../assets/trieo-logo.png'
 
 function AdminDashboard({
   places,
@@ -6,6 +7,8 @@ function AdminDashboard({
   users,
   section,
   notice,
+  onSignOut,
+  onNavigateHome,
   onChangeSection,
   onEditPlace,
   onViewPlace,
@@ -16,6 +19,20 @@ function AdminDashboard({
   onDeleteCategory,
 }) {
   const [categoryEditor, setCategoryEditor] = useState(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const navigate = (next) => { setSearch(''); setCategoryEditor(null); setSidebarOpen(false); onChangeSection(next) }
+  const query = search.trim().toLowerCase()
+  const visiblePlaces = places.filter(place => [place.name, ...(place.categories || [place.type])].some(value => value?.toLowerCase().includes(query)))
+  const visibleUsers = users.filter(user => [user.name, user.email, user.role].some(value => value.toLowerCase().includes(query)))
+  const visibleCategories = categories.filter(category => category.toLowerCase().includes(query))
+  const locatedPlaces = places.filter(place => Number.isFinite(place.latitude) && Number.isFinite(place.longitude)).length
+  const navigation = [
+    { id: 'overview', label: 'Overview', icon: '◫' },
+    { id: 'places', label: 'Attractions', icon: '◎', count: places.length },
+    { id: 'categories', label: 'Categories', icon: '▦', count: categories.length },
+    { id: 'users', label: 'User accounts', icon: '♙', count: users.length },
+  ]
 
   const saveCategory = (event) => {
     event.preventDefault()
@@ -76,43 +93,20 @@ function AdminDashboard({
   const activeMetric = metricCards.find((c) => c.id === section)
 
   return (
-    <main className="w-full flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* 1. Header Section */}
-      <div className="bg-white rounded-3xl border border-stone-200/80 p-6 sm:p-8 shadow-sm mb-8 relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-700" />
-              Administrator Control Center
-            </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-stone-900 tracking-tight">
-              {section === 'overview' ? 'Platform Management' : activeMetric?.title}
-            </h1>
-            <p className="text-stone-600 text-sm sm:text-base mt-1.5 max-w-2xl">
-              {section === 'overview'
-                ? 'Manage attractions, categorize destinations, and review platform accounts for Trieo.lk.'
-                : activeMetric?.description}
-            </p>
-          </div>
-
-          {/* Section Switcher Tabs & Back Button */}
-          <div className="flex items-center gap-2">
-            {section !== 'overview' && (
-              <button
-                type="button"
-                onClick={() => onChangeSection('overview')}
-                className="px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-stone-700 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span>Back to Overview</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
+    <main className="admin-workspace">
+      {sidebarOpen && <button type="button" className="admin-sidebar-backdrop" onClick={() => setSidebarOpen(false)} aria-label="Close sidebar" />}
+      <aside id="admin-sidebar" className={`admin-sidebar ${sidebarOpen ? 'is-open' : ''}`}>
+        <button type="button" className="admin-brand" onClick={() => navigate('overview')}><img src={brandLogo} alt="Trieo.lk" /><span>ADMIN WORKSPACE</span></button>
+        <span className="admin-nav-label">MANAGEMENT</span>
+        <nav aria-label="Administrator navigation">{navigation.map(item => <button key={item.id} type="button" className={section === item.id ? 'selected' : ''} aria-current={section === item.id ? 'page' : undefined} onClick={() => navigate(item.id)}><span className="admin-nav-icon" aria-hidden="true">{item.icon}</span><span>{item.label}</span>{item.count != null && <span className="admin-nav-count">{item.count}</span>}</button>)}</nav>
+        <div className="admin-sidebar-tip"><span>✦</span><strong>A better day starts here.</strong><p>Keep local destination information clear and up to date.</p></div>
+        <div className="admin-sidebar-bottom"><button type="button" onClick={onNavigateHome}>↗ View website</button><button type="button" onClick={onSignOut}>↪ Sign out</button><div className="admin-identity"><span>A</span><div><strong>Administrator</strong><small>Workspace administrator</small></div></div></div>
+      </aside>
+      <div className="admin-main">
+        <header className="admin-topbar"><div className="admin-breadcrumb"><button type="button" className="admin-menu-toggle" aria-label="Toggle administrator sidebar" aria-expanded={sidebarOpen} aria-controls="admin-sidebar" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button><span>Workspace</span><span>/</span><strong>{navigation.find(item => item.id === section)?.label}</strong></div><div className="admin-topbar-right"><span className="admin-preview-badge"><span /> Preview workspace</span><span className="admin-avatar" aria-label="Administrator">A</span></div></header>
+        <div className="admin-content">
+          <div className="admin-page-heading"><div><span className="eyebrow">TRIEO.LK CONTROL CENTER</span><h1>{section === 'overview' ? 'Welcome back, Administrator' : activeMetric?.title}</h1><p>{section === 'overview' ? 'A clear view of your destinations, categories, and community.' : activeMetric?.description}</p></div><button type="button" className="admin-primary" onClick={onAddPlace}>+ Add attraction</button></div>
+          {section !== 'overview' && <div className="admin-searchbar"><label htmlFor="admin-search" className="sr-only">Search {section}</label><span aria-hidden="true">⌕</span><input id="admin-search" value={search} onChange={event => setSearch(event.target.value)} placeholder={`Search ${section === 'places' ? 'attractions by name or category' : section === 'users' ? 'accounts by name, email, or role' : 'categories'}…`} />{search && <button type="button" onClick={() => setSearch('')}>Clear</button>}</div>}
       {/* Global Notice Alert */}
       {notice && (
         <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-sm font-semibold text-emerald-900 flex items-center gap-3 shadow-xs" role="status">
@@ -160,6 +154,11 @@ function AdminDashboard({
             ))}
           </div>
 
+          <div className="admin-overview-grid">
+            <section className="admin-panel"><div className="admin-panel-heading"><div><h2>Destination collection</h2><p>Your current attraction records</p></div><button type="button" onClick={() => navigate('places')}>View all →</button></div><div className="admin-recent-list">{places.slice(0, 4).map(place => <button type="button" key={place.id} onClick={() => onViewPlace(place)}><img src={place.images?.[0] || place.image} alt="" /><div><strong>{place.name}</strong><span>{place.type} · {place.distance}</span></div><span aria-hidden="true">↗</span></button>)}{places.length === 0 && <p>No attractions yet. Add your first destination.</p>}</div></section>
+            <section className="admin-panel"><div className="admin-panel-heading"><div><h2>Category distribution</h2><p>Attraction membership by category</p></div></div><div className="admin-category-bars">{categories.map(category => { const count = places.filter(place => (place.categories || [place.type]).includes(category)).length; return <div key={category}><div><span>{category}</span><strong>{count}</strong></div><div className="admin-bar-track"><span style={{ width: `${places.length ? count / places.length * 100 : 0}%` }} /></div></div> })}{categories.length === 0 && <p>No categories available.</p>}</div></section>
+          </div>
+          <section className="admin-quality"><span className="admin-quality-icon">◎</span><div><h2>Location data coverage</h2><p>{locatedPlaces} of {places.length} attractions have coordinates. Review missing locations in attraction management.</p></div><button type="button" onClick={() => navigate('places')}>Review places →</button></section>
           {/* Quick Summary Banner */}
           <div className="p-6 rounded-3xl bg-stone-100/70 border border-stone-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -169,7 +168,7 @@ function AdminDashboard({
               <div>
                 <h4 className="font-bold text-stone-900 text-sm">Preview Mode Active</h4>
                 <p className="text-xs text-stone-600">
-                  All additions, edits, and deletions persist during this browser session.
+                  Changes are kept while this page is open and reset on refresh.
                 </p>
               </div>
             </div>
@@ -220,7 +219,7 @@ function AdminDashboard({
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100 text-sm text-stone-700">
-                {places.map((place) => {
+                {visiblePlaces.map((place) => {
                   const displayCategories = place.categories || [place.type]
                   return (
                     <tr key={place.id} className="hover:bg-stone-50/60 transition-colors">
@@ -362,7 +361,7 @@ function AdminDashboard({
 
           {/* Categories Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categories.map((category) => {
+            {visibleCategories.map((category) => {
               const placeCount = places.filter(
                 (p) => (p.categories && p.categories.includes(category)) || p.type === category,
               ).length
@@ -424,7 +423,7 @@ function AdminDashboard({
           </div>
 
           <div className="divide-y divide-stone-100">
-            {users.map((user) => {
+            {visibleUsers.map((user) => {
               const isAdmin = user.role === 'Administrator'
               return (
                 <div key={user.email} className="py-4 flex items-center justify-between gap-4">
@@ -459,6 +458,10 @@ function AdminDashboard({
           </div>
         </div>
       )}
+          {section !== 'overview' && (section === 'places' ? visiblePlaces.length : section === 'users' ? visibleUsers.length : visibleCategories.length) === 0 && <div className="admin-empty" role="status"><strong>No matching records</strong><p>{search ? 'Try another search or clear your filters.' : 'There are no records in this section yet.'}</p>{search && <button type="button" onClick={() => setSearch('')}>Clear search</button>}</div>}
+          <footer className="admin-workspace-footer">Trieo.lk administration <span>Padalangala · Local tourism management</span></footer>
+        </div>
+      </div>
     </main>
   )
 }

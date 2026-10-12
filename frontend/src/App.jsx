@@ -277,7 +277,7 @@ function App() {
 
   return (
     <div className="w-full min-h-screen flex flex-col bg-[#F9FAF8] text-stone-800 antialiased font-sans">
-      <SiteHeader
+      {activeView !== 'admin' && <SiteHeader
         activeView={activeView}
         adminSection={adminSection}
         userName={userName}
@@ -295,7 +295,7 @@ function App() {
           setActiveView('admin')
         }}
         onSignOut={signOut}
-      />
+      />}
 
 
       {activeView === 'home' && (
@@ -333,6 +333,8 @@ function App() {
       )}
       {activeView === 'admin' && (
         <AdminDashboard
+          onSignOut={signOut}
+          onNavigateHome={() => setActiveView('home')}
           places={places}
           categories={categories}
           users={[
@@ -371,7 +373,7 @@ function App() {
         />
       )}
 
-      <SiteFooter onNavigateHome={() => setActiveView('home')} />
+      {activeView !== 'admin' && <SiteFooter onNavigateHome={() => setActiveView('home')} />}
 
       <PlaceEditModal
         place={editingPlace}
