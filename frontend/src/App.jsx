@@ -276,17 +276,27 @@ function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className="w-full min-h-screen flex flex-col bg-[#F9FAF8] text-stone-800 antialiased font-sans">
       <SiteHeader
         activeView={activeView}
+        adminSection={adminSection}
         userName={userName}
+        savedPlacesCount={savedPlaces.length}
         onOpenLogin={openLogin}
         onNavigateHome={() => {
           setAdminSection('overview')
           setActiveView('home')
         }}
+        onNavigateTourist={() => {
+          setActiveView('tourist')
+        }}
+        onNavigateAdminSection={(section) => {
+          setAdminSection(section)
+          setActiveView('admin')
+        }}
         onSignOut={signOut}
       />
+
 
       {activeView === 'home' && (
         <HomePage
