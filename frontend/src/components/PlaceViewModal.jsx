@@ -48,7 +48,7 @@ function PlaceViewModal({ place, onClose }) {
             {categories.map((category) => (
               <span
                 key={category}
-                className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-100"
+                className="px-3 py-1 rounded-full text-sm font-bold bg-emerald-50 text-emerald-800 border border-emerald-100"
               >
                 {category}
               </span>
@@ -67,20 +67,20 @@ function PlaceViewModal({ place, onClose }) {
           {/* Quick Metrics dl */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-stone-100 text-left">
             <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/60">
-              <span className="text-[11px] font-bold uppercase text-stone-400 block">Distance</span>
+              <span className="text-sm font-bold uppercase text-stone-400 block">Distance</span>
               <span className="text-sm font-bold text-stone-900 mt-0.5 block">{place.distance}</span>
             </div>
             <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/60">
-              <span className="text-[11px] font-bold uppercase text-stone-400 block">Duration</span>
+              <span className="text-sm font-bold uppercase text-stone-400 block">Duration</span>
               <span className="text-sm font-bold text-stone-900 mt-0.5 block">{place.duration}</span>
             </div>
             <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/60">
-              <span className="text-[11px] font-bold uppercase text-stone-400 block">Hours</span>
+              <span className="text-sm font-bold uppercase text-stone-400 block">Hours</span>
               <span className="text-sm font-bold text-stone-900 mt-0.5 block">{place.hours}</span>
             </div>
             <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/60">
-              <span className="text-[11px] font-bold uppercase text-stone-400 block">Location</span>
-              <span className="text-xs font-mono font-bold text-stone-900 mt-0.5 block truncate">
+              <span className="text-sm font-bold uppercase text-stone-400 block">Location</span>
+              <span className="text-sm font-mono font-bold text-stone-900 mt-0.5 block truncate">
                 {place.latitude != null && place.longitude != null ? `${place.latitude}, ${place.longitude}` : 'N/A'}
               </span>
             </div>

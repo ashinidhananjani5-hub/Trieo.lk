@@ -123,7 +123,7 @@ function SiteHeader({
                 >
                   <span>My Day Plan</span>
                   {savedPlacesCount > 0 && (
-                    <span className="ml-0.5 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-[#2d6a4f] rounded-full">
+                    <span className="ml-0.5 inline-flex items-center justify-center px-1.5 py-0.5 text-sm font-bold leading-none text-white bg-[#2d6a4f] rounded-full">
                       {savedPlacesCount}
                     </span>
                   )}
@@ -163,17 +163,17 @@ function SiteHeader({
               // Logged in
               <div className="flex items-center gap-2.5">
                 <div className="flex items-center gap-2 bg-stone-100/90 border border-stone-200/60 rounded-full pl-1.5 pr-3 py-1 shadow-xs">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#1b4332] to-[#40916c] text-white flex items-center justify-center font-bold text-xs uppercase shadow-xs">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#1b4332] to-[#40916c] text-white flex items-center justify-center font-bold text-sm uppercase shadow-xs">
                     {userName ? userName.charAt(0) : 'U'}
                   </div>
-                  <span className="text-xs font-semibold text-stone-700 hidden sm:inline-block max-w-[120px] truncate">
+                  <span className="text-sm font-semibold text-stone-700 hidden sm:inline-block max-w-[120px] truncate">
                     Hello, <span className="text-[#1b4332] font-bold">{userName.split(' ')[0]}</span>
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleNavClick(onSignOut)}
-                  className="px-3.5 py-1.5 text-xs font-semibold text-stone-600 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200/60 rounded-full transition-all duration-150"
+                  className="px-3.5 py-1.5 text-sm font-semibold text-stone-600 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-200/60 rounded-full transition-all duration-150"
                   title="Sign out from Trieo.lk"
                 >
                   Sign out
@@ -262,7 +262,7 @@ function SiteHeader({
               >
                 <span>My Day Plan</span>
                 {savedPlacesCount > 0 && (
-                  <span className="px-2 py-0.5 text-xs font-bold text-white bg-[#2d6a4f] rounded-full">
+                  <span className="px-2 py-0.5 text-sm font-bold text-white bg-[#2d6a4f] rounded-full">
                     {savedPlacesCount} saved
                   </span>
                 )}

@@ -44,19 +44,19 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
         </button>
 
         <div className="mb-6">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+          <span className="text-sm font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
             Attraction Details
           </span>
           <h2 id="edit-title" className="text-2xl font-extrabold text-stone-900 mt-2">
             {isNewPlace ? 'Add New Attraction' : 'Edit Attraction Information'}
           </h2>
-          <p className="text-xs text-stone-500 mt-1">
+          <p className="text-sm text-stone-500 mt-1">
             Provide images, geographic coordinates, and visitor details for Padalangala day travelers.
           </p>
         </div>
 
         {notice && (
-          <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs font-semibold text-rose-800 flex items-center gap-2" role="alert">
+          <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-sm font-semibold text-rose-800 flex items-center gap-2" role="alert">
             <svg className="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -67,7 +67,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
         <form onSubmit={onSave} className="space-y-5 text-left">
           {/* Name */}
           <div>
-            <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
               Attraction Name
             </label>
             <input
@@ -81,14 +81,14 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
 
           {/* Categories */}
           <div>
-            <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
               Categories <span className="text-stone-400 font-normal lowercase">(select one or more)</span>
             </label>
             <div className="flex flex-wrap gap-2 p-3 bg-stone-50 rounded-2xl border border-stone-200">
               {categories.map((category) => (
                 <label
                   key={category}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-stone-200/80 rounded-xl text-xs font-semibold text-stone-700 hover:border-emerald-300 cursor-pointer transition-colors shadow-xs"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-stone-200/80 rounded-xl text-sm font-semibold text-stone-700 hover:border-emerald-300 cursor-pointer transition-colors shadow-xs"
                 >
                   <input
                     name="categories"
@@ -106,7 +106,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
           {/* Distance and Duration */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                 Distance from Padalangala
               </label>
               <input
@@ -118,7 +118,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                 Estimated Visit Duration
               </label>
               <input
@@ -133,7 +133,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
 
           {/* Images */}
           <div>
-            <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
               Image URLs <span className="text-stone-400 font-normal lowercase">(3 URLs required)</span>
             </label>
             <div className="space-y-2">
@@ -154,7 +154,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
           {/* Coordinates */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                 Latitude (-90 to 90)
               </label>
               <input
@@ -170,7 +170,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                 Longitude (-180 to 180)
               </label>
               <input
@@ -190,7 +190,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
           {/* Opening Hours */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                 Opening Time
               </label>
               <input
@@ -202,7 +202,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                 Closing Time
               </label>
               <input
@@ -217,7 +217,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
 
           {/* Descriptions */}
           <div>
-            <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
               Highlight Tag / Catchphrase
             </label>
             <input
@@ -230,7 +230,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
               Detailed Description
             </label>
             <textarea

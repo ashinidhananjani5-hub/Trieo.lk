@@ -141,12 +141,12 @@ function AdminDashboard({
                   <h3 className="text-lg font-bold text-stone-900 group-hover:text-emerald-800 transition-colors">
                     {card.title}
                   </h3>
-                  <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                  <p className="text-sm text-stone-500 mt-1 leading-relaxed">
                     {card.description}
                   </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-emerald-800">
+                <div className="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between text-sm font-bold text-emerald-800">
                   <span>Manage {card.countLabel}</span>
                   <span className="transform group-hover:translate-x-1.5 transition-transform" aria-hidden="true">→</span>
                 </div>
@@ -167,7 +167,7 @@ function AdminDashboard({
               </div>
               <div>
                 <h4 className="font-bold text-stone-900 text-sm">Preview Mode Active</h4>
-                <p className="text-xs text-stone-600">
+                <p className="text-sm text-stone-600">
                   Changes are kept while this page is open and reset on refresh.
                 </p>
               </div>
@@ -175,7 +175,7 @@ function AdminDashboard({
             <button
               type="button"
               onClick={onAddPlace}
-              className="px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs shadow-xs transition-colors whitespace-nowrap"
+              className="px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm shadow-xs transition-colors whitespace-nowrap"
             >
               + Quick Add Attraction
             </button>
@@ -190,14 +190,14 @@ function AdminDashboard({
           <div className="p-6 sm:p-7 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-bold text-stone-900">Listed Attractions</h2>
-              <p className="text-xs text-stone-500 mt-0.5">
+              <p className="text-sm text-stone-500 mt-0.5">
                 Total <strong>{places.length}</strong> attractions currently accessible to tourists.
               </p>
             </div>
             <button
               type="button"
               onClick={onAddPlace}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs sm:text-sm shadow-sm hover:shadow transition-all active:scale-95"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm sm:text-sm shadow-sm hover:shadow transition-all active:scale-95"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
@@ -210,7 +210,7 @@ function AdminDashboard({
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-stone-50/90 border-b border-stone-200 text-[11px] font-extrabold uppercase tracking-wider text-stone-600 sticky top-0 z-10 backdrop-blur-xs">
+                <tr className="bg-stone-50/90 border-b border-stone-200 text-sm font-extrabold uppercase tracking-wider text-stone-600 sticky top-0 z-10 backdrop-blur-xs">
                   <th className="py-4 px-6">Place</th>
                   <th className="py-4 px-6">Categories</th>
                   <th className="py-4 px-6">Location</th>
@@ -232,7 +232,7 @@ function AdminDashboard({
                           />
                           <div>
                             <span className="font-bold text-stone-900 block">{place.name}</span>
-                            <span className="text-xs text-stone-400 font-medium">
+                            <span className="text-sm text-stone-400 font-medium">
                               {place.images?.length || 1} images · {place.distance}
                             </span>
                           </div>
@@ -241,13 +241,13 @@ function AdminDashboard({
                       <td className="py-4 px-6">
                         <div className="flex flex-wrap gap-1">
                           {displayCategories.map((c) => (
-                            <span key={c} className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-100">
+                            <span key={c} className="px-2.5 py-0.5 rounded-full text-sm font-semibold bg-emerald-50 text-emerald-800 border border-emerald-100">
                               {c}
                             </span>
                           ))}
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-xs text-stone-600 font-mono">
+                      <td className="py-4 px-6 text-sm text-stone-600 font-mono">
                         {place.latitude != null && place.longitude != null ? (
                           <span className="bg-stone-100 px-2 py-1 rounded-md">
                             {place.latitude}, {place.longitude}
@@ -256,7 +256,7 @@ function AdminDashboard({
                           <span className="text-stone-400 italic">Not set</span>
                         )}
                       </td>
-                      <td className="py-4 px-6 text-xs text-stone-600 font-medium">
+                      <td className="py-4 px-6 text-sm text-stone-600 font-medium">
                         {place.hours}
                       </td>
                       <td className="py-4 px-6 text-right">
@@ -317,14 +317,14 @@ function AdminDashboard({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-stone-100">
             <div>
               <h2 className="text-xl font-bold text-stone-900">Attraction Categories</h2>
-              <p className="text-xs text-stone-500 mt-0.5">
+              <p className="text-sm text-stone-500 mt-0.5">
                 Organize attractions into structured categories.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setCategoryEditor({ current: '', name: '' })}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs sm:text-sm shadow-sm transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm sm:text-sm shadow-sm transition-all"
             >
               <span>+ Add Category</span>
             </button>
@@ -345,13 +345,13 @@ function AdminDashboard({
                 <button
                   type="button"
                   onClick={() => setCategoryEditor(null)}
-                  className="px-4 py-2.5 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-700 text-xs font-bold transition-colors"
+                  className="px-4 py-2.5 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-700 text-sm font-bold transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#1b4332] hover:bg-[#2d6a4f] text-white text-xs font-bold transition-colors"
+                  className="px-5 py-2.5 rounded-xl bg-[#1b4332] hover:bg-[#2d6a4f] text-white text-sm font-bold transition-colors"
                 >
                   {categoryEditor.current ? 'Save Name' : 'Create Category'}
                 </button>
@@ -377,7 +377,7 @@ function AdminDashboard({
                     </div>
                     <div>
                       <h4 className="font-bold text-stone-900 text-sm">{category}</h4>
-                      <span className="text-xs text-stone-400 font-medium">
+                      <span className="text-sm text-stone-400 font-medium">
                         {placeCount} {placeCount === 1 ? 'place' : 'places'}
                       </span>
                     </div>
@@ -387,7 +387,7 @@ function AdminDashboard({
                     <button
                       type="button"
                       onClick={() => setCategoryEditor({ current: category, name: category })}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:text-emerald-800 hover:bg-stone-100 transition-colors"
+                      className="px-3 py-1.5 rounded-lg text-sm font-semibold text-stone-600 hover:text-emerald-800 hover:bg-stone-100 transition-colors"
                     >
                       Rename
                     </button>
@@ -396,7 +396,7 @@ function AdminDashboard({
                       disabled={placeCount > 0}
                       onClick={() => onDeleteCategory(category)}
                       title={placeCount > 0 ? 'Move attractions before deleting' : 'Delete category'}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                      className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
                         placeCount > 0
                           ? 'text-stone-300 cursor-not-allowed'
                           : 'text-rose-600 hover:bg-rose-50'
@@ -417,7 +417,7 @@ function AdminDashboard({
         <div className="bg-white rounded-3xl border border-stone-200/90 shadow-sm p-6 sm:p-8">
           <div className="mb-6 pb-6 border-b border-stone-100">
             <h2 className="text-xl font-bold text-stone-900">Registered Accounts</h2>
-            <p className="text-xs text-stone-500 mt-0.5">
+            <p className="text-sm text-stone-500 mt-0.5">
               Review active administrator and tourist accounts stored for this application.
             </p>
           </div>
@@ -439,12 +439,12 @@ function AdminDashboard({
                     </div>
                     <div>
                       <h4 className="font-bold text-stone-900 text-sm">{user.name}</h4>
-                      <p className="text-xs text-stone-400 font-medium">{user.email}</p>
+                      <p className="text-sm text-stone-400 font-medium">{user.email}</p>
                     </div>
                   </div>
 
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide ${
+                    className={`px-3 py-1 rounded-full text-sm font-bold tracking-wide ${
                       isAdmin
                         ? 'bg-purple-50 text-purple-800 border border-purple-200'
                         : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
