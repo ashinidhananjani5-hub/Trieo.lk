@@ -1,39 +1,13 @@
+import brandLogo from '../assets/trieo-logo.png'
+
 const CURRENT_YEAR = new Date().getFullYear()
 
-function SiteFooter() {
+function SiteFooter({ onNavigateHome }) {
   return (
-    <footer className="w-full mt-auto border-t border-stone-200/80 bg-white/60 backdrop-blur-xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#1b4332] text-white flex items-center justify-center font-bold text-sm shadow-xs">
-              T
-            </div>
-            <div>
-              <p className="font-bold text-stone-900 text-sm tracking-tight">Trieo.lk</p>
-              <p className="text-xs text-stone-500">Local Tourist Day-Visit Planner · Padalangala, Sri Lanka</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-6 text-xs font-medium text-stone-600">
-            <a href="#discover" className="hover:text-emerald-800 transition-colors">
-              Discover
-            </a>
-            <a href="#places" className="hover:text-emerald-800 transition-colors">
-              Attractions
-            </a>
-            <a href="#how-it-works" className="hover:text-emerald-800 transition-colors">
-              How It Works
-            </a>
-            <a href="#about" className="hover:text-emerald-800 transition-colors">
-              About
-            </a>
-          </div>
-
-          <p className="text-xs text-stone-400">
-            © {CURRENT_YEAR} Trieo.lk. Exploring local experiences, one day at a time.
-          </p>
-        </div>
+    <footer className="travel-footer">
+      <div className="home-container">
+        <div className="footer-top"><div className="footer-intro"><a href="#" onClick={onNavigateHome} aria-label="Trieo.lk home"><img src={brandLogo} alt="Trieo.lk" width="710" height="354" /></a><p>Find the extraordinary in the nearby.<br />Your local day out starts here.</p><span className="footer-location"><span className="location-dot" /> Padalangala, Sri Lanka</span></div><div className="footer-links"><h3>Explore a little</h3><a href="#discover" onClick={onNavigateHome}>Discover destinations ↗</a><a href="#places" onClick={onNavigateHome}>Browse attractions ↗</a><a href="#how-it-works" onClick={onNavigateHome}>How it works ↗</a><a href="#about" onClick={onNavigateHome}>About Trieo.lk ↗</a></div><div className="footer-message"><span className="eyebrow">TAKE THE SCENIC WAY</span><h3>Less scrolling.<br /><em>More exploring.</em></h3><a href="#places" onClick={onNavigateHome} className="footer-explore">Find your next escape <span aria-hidden="true">→</span></a></div></div>
+        <div className="footer-bottom"><p>© {CURRENT_YEAR} Trieo.lk. All rights reserved.</p><span>Made for local discovery · One day at a time</span><a href="#" onClick={onNavigateHome}>Back to top ↑</a></div>
       </div>
     </footer>
   )

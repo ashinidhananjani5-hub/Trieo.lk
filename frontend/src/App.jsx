@@ -371,7 +371,7 @@ function App() {
         />
       )}
 
-      <SiteFooter />
+      <SiteFooter onNavigateHome={() => setActiveView('home')} />
 
       <PlaceEditModal
         place={editingPlace}
