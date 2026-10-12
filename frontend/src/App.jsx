@@ -88,7 +88,7 @@ function App() {
     }
 
     setLoginError('')
-    authenticate().catch((error) => {
+    return authenticate().catch((error) => {
       setLoginError(`Unable to sign in: ${error.message}`)
     })
   }
@@ -131,7 +131,7 @@ function App() {
     }
 
     setLoginError('')
-    register().catch((error) => {
+    return register().catch((error) => {
       setLoginError(`Unable to create your account: ${error.message}`)
     })
   }
