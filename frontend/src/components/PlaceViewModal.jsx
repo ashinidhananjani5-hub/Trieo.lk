@@ -1,4 +1,24 @@
+import { useEffect, useRef, useState } from 'react'
+
 function PlaceViewModal({ place, onClose }) {
+  const dialog = useRef(null)
+  useEffect(() => {
+    if (!place) return
+    const previous = document.activeElement
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    dialog.current?.querySelector('button')?.focus()
+    const handleKey = event => {
+      if (event.key === 'Escape') onClose()
+      if (event.key !== 'Tab') return
+      const elements = [...dialog.current.querySelectorAll('button, a[href], iframe, input, [tabindex="0"]')].filter(element => !element.disabled)
+      const first = elements[0], last = elements[elements.length - 1]
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => { document.body.style.overflow = previousOverflow; document.removeEventListener('keydown', handleKey); previous?.focus() }
+  }, [place, onClose])
   if (!place) return null
 
   const categories = place.categories || [place.type].filter(Boolean)
@@ -13,6 +33,7 @@ function PlaceViewModal({ place, onClose }) {
       }}
     >
       <section
+        ref={dialog}
         className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden relative my-8"
         role="dialog"
         aria-modal="true"
@@ -86,6 +107,12 @@ function PlaceViewModal({ place, onClose }) {
             </div>
           </div>
 
+          <dl className="place-extra-details">
+            <div><dt>Entrance fee</dt><dd>{place.entranceFee || 'Information not available'}</dd></div>
+            <div><dt>Travel tips</dt><dd>{Array.isArray(place.travelTips) ? place.travelTips.join(' · ') || 'Information not available' : place.travelTips || 'Information not available'}</dd></div>
+            <div><dt>Facilities</dt><dd>{Array.isArray(place.facilities) ? place.facilities.join(' · ') || 'Information not available' : place.facilities || 'Information not available'}</dd></div>
+          </dl>
+          <PlaceMap key={place.id} place={place} />
           <div className="mt-8 flex justify-end">
             <button
               type="button"
@@ -99,6 +126,14 @@ function PlaceViewModal({ place, onClose }) {
       </section>
     </div>
   )
+}
+
+function PlaceMap({ place }) {
+  const [failed, setFailed] = useState(false)
+  const valid = Number.isFinite(place.latitude) && Math.abs(place.latitude) <= 90 && Number.isFinite(place.longitude) && Math.abs(place.longitude) <= 180
+  const lat = place.latitude, lon = place.longitude
+  const bbox = valid ? `${Math.max(-180, lon - .025)},${Math.max(-90, lat - .018)},${Math.min(180, lon + .025)},${Math.min(90, lat + .018)}` : ''
+  return <section className="place-map"><h3>Location on map</h3>{valid ? <>{!failed && <iframe title={`OpenStreetMap location of ${place.name}`} src={`https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik&marker=${lat}%2C${lon}`} loading="lazy" onError={() => setFailed(true)} />}<p>{failed ? 'The map service is unavailable. You can still view the place details.' : 'If the embedded map does not load, open the map directly below.'}</p><a href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=15/${lat}/${lon}`} target="_blank" rel="noreferrer">Open in OpenStreetMap ↗</a></> : <p>Location information is not available for this place yet.</p>}</section>
 }
 
 export default PlaceViewModal

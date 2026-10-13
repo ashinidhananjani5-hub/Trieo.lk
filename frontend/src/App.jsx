@@ -34,6 +34,7 @@ function App() {
   const [editingPlace, setEditingPlace] = useState(null)
   const [viewingPlace, setViewingPlace] = useState(null)
   const [savedPlaces, setSavedPlaces] = useState([])
+  const [touristEmail, setTouristEmail] = useState('')
   const [notice, setNotice] = useState('')
 
   useEffect(() => {
@@ -83,7 +84,11 @@ function App() {
 
       await verifyTouristPassword(account, password)
       setUserName(account.name)
-      setSavedPlaces([])
+      setTouristEmail(email)
+      try {
+        const stored = JSON.parse(window.localStorage.getItem(`trieo.plan.${email}`) || '[]')
+        setSavedPlaces(Array.isArray(stored) ? [...new Set(stored.filter(id => typeof id === 'string' && places.some(place => place.id === id)))] : [])
+      } catch { setSavedPlaces([]) }
       setActiveView('tourist')
     }
 
@@ -259,9 +264,31 @@ function App() {
     )
   }
 
+  useEffect(() => {
+    if (!touristEmail || activeView !== 'tourist') return
+    try { window.localStorage.setItem(`trieo.plan.${touristEmail}`, JSON.stringify(savedPlaces)) }
+    catch {
+      // A storage failure needs visible feedback; this effect synchronizes browser storage.
+      // oxlint-disable-next-line react/set-state-in-effect
+      setNotice('Your plan is available for this visit, but browser storage could not save it.')
+    }
+  }, [savedPlaces, touristEmail, activeView])
+
+  const movePlannedPlace = (id, direction) => {
+    setSavedPlaces(current => {
+      const index = current.indexOf(id)
+      const destination = index + direction
+      if (index < 0 || destination < 0 || destination >= current.length) return current
+      const updated = [...current]
+      ;[updated[index], updated[destination]] = [updated[destination], updated[index]]
+      return updated
+    })
+  }
+
   const signOut = () => {
     setActiveView('home')
     setUserName('')
+    setTouristEmail('')
     setSavedPlaces([])
     setNotice('')
   }
@@ -329,6 +356,9 @@ function App() {
           userName={userName}
           notice={notice}
           onToggleSavedPlace={toggleSavedPlace}
+          onViewPlace={setViewingPlace}
+          onClearPlan={() => setSavedPlaces([])}
+          onMovePlace={movePlannedPlace}
         />
       )}
       {activeView === 'admin' && (
