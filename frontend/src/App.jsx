@@ -35,6 +35,7 @@ function App() {
   const [viewingPlace, setViewingPlace] = useState(null)
   const [savedPlaces, setSavedPlaces] = useState([])
   const [touristEmail, setTouristEmail] = useState('')
+  const [isTouristPlanOpen, setIsTouristPlanOpen] = useState(false)
   const [notice, setNotice] = useState('')
 
   useEffect(() => {
@@ -286,6 +287,7 @@ function App() {
   }
 
   const signOut = () => {
+    setIsTouristPlanOpen(false)
     setActiveView('home')
     setUserName('')
     setTouristEmail('')
@@ -315,6 +317,7 @@ function App() {
           setActiveView('home')
         }}
         onNavigateTourist={() => {
+          setIsTouristPlanOpen(true)
           setActiveView('tourist')
         }}
         onNavigateAdminSection={(section) => {
@@ -351,6 +354,9 @@ function App() {
       )}
       {activeView === 'tourist' && (
         <TouristDashboard
+          isPlanOpen={isTouristPlanOpen}
+          onOpenPlan={() => setIsTouristPlanOpen(true)}
+          onClosePlan={() => setIsTouristPlanOpen(false)}
           places={places}
           savedPlaces={savedPlaces}
           userName={userName}
