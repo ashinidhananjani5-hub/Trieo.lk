@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react'
+
 function parseOpeningTime(hours, period) {
   const match = hours?.match(
     /(\d{1,2}):(\d{2})\s*(AM|PM)\s*[–-]\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i,
@@ -12,257 +14,53 @@ function parseOpeningTime(hours, period) {
 }
 
 function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
+  const dialog = useRef(null)
+  const alert = useRef(null)
+  useEffect(() => {
+    if (!place) return
+    const previous = document.activeElement
+    const overflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    dialog.current?.querySelector('input')?.focus()
+    const keydown = event => {
+      if (event.key === 'Escape') onClose()
+      if (event.key !== 'Tab') return
+      const controls = [...dialog.current.querySelectorAll('button, input, textarea')].filter(item => !item.disabled)
+      const first = controls[0], last = controls[controls.length - 1]
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
+    }
+    document.addEventListener('keydown', keydown)
+    return () => { document.body.style.overflow = overflow; document.removeEventListener('keydown', keydown); previous?.focus() }
+  }, [place, onClose])
+  useEffect(() => { if (place && notice) alert.current?.scrollIntoView({ block: 'nearest', behavior: 'instant' }) }, [notice, place])
   if (!place) return null
-
-  const isNewPlace = !place.id
-  const placeImages = place.images?.length ? place.images : [place.image || '']
-  const placeCategories = place.categories?.length ? place.categories : [place.type].filter(Boolean)
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose()
-      }}
-    >
-      <section
-        className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden relative my-8 p-6 sm:p-8"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="edit-title"
-      >
-        <button
-          className="absolute top-5 right-5 w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-all"
-          type="button"
-          aria-label="Close editor"
-          onClick={onClose}
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        <div className="mb-6">
-          <span className="text-sm font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
-            Attraction Details
-          </span>
-          <h2 id="edit-title" className="text-2xl font-extrabold text-stone-900 mt-2">
-            {isNewPlace ? 'Add New Attraction' : 'Edit Attraction Information'}
-          </h2>
-          <p className="text-sm text-stone-500 mt-1">
-            Provide images, geographic coordinates, and visitor details for Padalangala day travelers.
-          </p>
+  const images = place.images?.length ? place.images : [place.image || '']
+  const selected = place.categories?.length ? place.categories : [place.type].filter(Boolean)
+  return <div className="place-editor-overlay" onMouseDown={event => { if (event.target === event.currentTarget) onClose() }}>
+    <section ref={dialog} className="place-editor" role="dialog" aria-modal="true" aria-labelledby="edit-title" aria-describedby="edit-help">
+      <header className="place-editor-header"><div><span className="eyebrow">DESTINATION MANAGEMENT</span><h2 id="edit-title">{place.id ? 'Edit attraction' : 'Add a new attraction'}</h2><p id="edit-help">Help visitors discover this place. Fields marked <span aria-hidden="true">*</span> are required.</p></div><button type="button" className="editor-close" aria-label="Close attraction editor" onClick={onClose}>×</button></header>
+      <form onSubmit={onSave} className="place-editor-form">
+        <div className="place-editor-body">
+          {notice && <div ref={alert} className="editor-alert" role="alert">{notice}</div>}
+          <fieldset className="editor-section"><legend><span>01</span> About the attraction</legend><p className="editor-section-help">Start with a name, category, and a helpful introduction.</p>
+            <EditorField name="name" label="Attraction name" value={place.name} placeholder="e.g. Ridiyagama Safari Park" />
+            <fieldset className="editor-categories"><legend>Categories <span aria-hidden="true">*</span></legend><p>Choose at least one category.</p><div>{categories.map(category => <label key={category}><input type="checkbox" name="categories" value={category} defaultChecked={selected.includes(category)} /><span>{category}</span></label>)}</div>{!categories.length && <p>Add a category in category management first.</p>}</fieldset>
+            <EditorField name="tag" label="Short highlight" value={place.tag} placeholder="e.g. Meet Sri Lanka’s wildlife" hint="A short line to help visitors understand what makes this place special." />
+            <div className="editor-field"><label htmlFor="edit-description">Description <span aria-hidden="true">*</span></label><textarea id="edit-description" name="description" defaultValue={place.description} rows={4} required placeholder="Describe the experience, highlights, and what visitors can expect…" /></div>
+          </fieldset>
+          <fieldset className="editor-section"><legend><span>02</span> Visit information</legend><p className="editor-section-help">Give visitors an idea of the time and distance involved.</p><div className="editor-two-columns"><EditorField name="distance" label="Distance from Padalangala" value={place.distance} placeholder="e.g. 8.3 km" hint="Include the distance unit (km)." /><EditorField name="duration" label="Estimated visit duration" value={place.duration} placeholder="e.g. 1.5 hrs" hint="Time spent at the attraction, not travel time." /><EditorField name="openingFrom" label="Opening time" type="time" value={place.openingFrom || parseOpeningTime(place.hours, 'from')} /><EditorField name="openingTo" label="Closing time" type="time" value={place.openingTo || parseOpeningTime(place.hours, 'to')} /></div></fieldset>
+          <fieldset className="editor-section"><legend><span>03</span> Photos</legend><p className="editor-section-help">Paste three direct image links. Use clear photos of the attraction.</p>{[0, 1, 2].map(index => <EditorField key={index} name="images" id={`edit-image-${index}`} label={`Photo ${index + 1}`} type="url" value={images[index] || ''} placeholder="https://example.com/attraction.jpg" />)}</fieldset>
+          <fieldset className="editor-section"><legend><span>04</span> Map location</legend><p className="editor-section-help">Enter verified coordinates so visitors can locate the attraction on the map.</p><div className="editor-two-columns"><EditorField name="latitude" label="Latitude" type="number" value={place.latitude ?? ''} min={-90} max={90} step="any" placeholder="e.g. 6.1524" hint="A number between -90 and 90." /><EditorField name="longitude" label="Longitude" type="number" value={place.longitude ?? ''} min={-180} max={180} step="any" placeholder="e.g. 81.0184" hint="A number between -180 and 180." /></div></fieldset>
         </div>
+        <footer className="place-editor-actions"><span>Review the details before saving.</span><div><button type="button" onClick={onClose}>Cancel</button><button type="submit" className="editor-save">{place.id ? 'Save changes' : 'Add attraction'} &gt;</button></div></footer>
+      </form>
+    </section>
+  </div>
+}
 
-        {notice && (
-          <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-sm font-semibold text-rose-800 flex items-center gap-2" role="alert">
-            <svg className="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{notice}</span>
-          </div>
-        )}
-
-        <form onSubmit={onSave} className="space-y-5 text-left">
-          {/* Name */}
-          <div>
-            <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-              Attraction Name
-            </label>
-            <input
-              name="name"
-              defaultValue={place.name}
-              placeholder="e.g. Ridiyagama Safari Park"
-              required
-              className="w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all"
-            />
-          </div>
-
-          {/* Categories */}
-          <div>
-            <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-              Categories <span className="text-stone-400 font-normal lowercase">(select one or more)</span>
-            </label>
-            <div className="flex flex-wrap gap-2 p-3 bg-stone-50 rounded-2xl border border-stone-200">
-              {categories.map((category) => (
-                <label
-                  key={category}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-stone-200/80 rounded-xl text-sm font-semibold text-stone-700 hover:border-emerald-300 cursor-pointer transition-colors shadow-xs"
-                >
-                  <input
-                    name="categories"
-                    type="checkbox"
-                    value={category}
-                    defaultChecked={placeCategories.includes(category)}
-                    className="rounded text-emerald-800 focus:ring-emerald-700"
-                  />
-                  <span>{category}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Distance and Duration */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                Distance from Padalangala
-              </label>
-              <input
-                name="distance"
-                defaultValue={place.distance}
-                placeholder="e.g. 8.3 km"
-                required
-                className="w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                Estimated Visit Duration
-              </label>
-              <input
-                name="duration"
-                defaultValue={place.duration}
-                placeholder="e.g. 1.5 hrs"
-                required
-                className="w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all"
-              />
-            </div>
-          </div>
-
-          {/* Images */}
-          <div>
-            <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-              Image URLs <span className="text-stone-400 font-normal lowercase">(3 URLs required)</span>
-            </label>
-            <div className="space-y-2">
-              {[0, 1, 2].map((index) => (
-                <input
-                  key={index}
-                  name="images"
-                  type="url"
-                  defaultValue={placeImages[index] || ''}
-                  placeholder={`Photo URL ${index + 1} (https://...)`}
-                  required
-                  className="w-full px-4 py-2 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all"
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Coordinates */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                Latitude (-90 to 90)
-              </label>
-              <input
-                name="latitude"
-                type="number"
-                min="-90"
-                max="90"
-                step="any"
-                defaultValue={place.latitude ?? ''}
-                placeholder="e.g. 6.1524"
-                required
-                className="w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all font-sans tabular-nums"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                Longitude (-180 to 180)
-              </label>
-              <input
-                name="longitude"
-                type="number"
-                min="-180"
-                max="180"
-                step="any"
-                defaultValue={place.longitude ?? ''}
-                placeholder="e.g. 81.0184"
-                required
-                className="w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all font-sans tabular-nums"
-              />
-            </div>
-          </div>
-
-          {/* Opening Hours */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                Opening Time
-              </label>
-              <input
-                name="openingFrom"
-                type="time"
-                defaultValue={place.openingFrom || parseOpeningTime(place.hours, 'from')}
-                required
-                className="w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                Closing Time
-              </label>
-              <input
-                name="openingTo"
-                type="time"
-                defaultValue={place.openingTo || parseOpeningTime(place.hours, 'to')}
-                required
-                className="w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all"
-              />
-            </div>
-          </div>
-
-          {/* Descriptions */}
-          <div>
-            <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-              Highlight Tag / Catchphrase
-            </label>
-            <input
-              name="tag"
-              defaultValue={place.tag}
-              placeholder="e.g. Meet Sri Lanka’s wildlife"
-              required
-              className="w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-              Detailed Description
-            </label>
-            <textarea
-              name="description"
-              rows="3"
-              defaultValue={place.description}
-              placeholder="Full description of the attraction..."
-              required
-              className="w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all"
-            />
-          </div>
-
-          {/* Form Actions */}
-          <div className="pt-4 flex items-center justify-end gap-3 border-t border-stone-100">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-5 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-sm font-semibold transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-bold shadow-sm transition-colors"
-            >
-              {isNewPlace ? 'Add Attraction' : 'Save Changes'}
-            </button>
-          </div>
-        </form>
-      </section>
-    </div>
-  )
+function EditorField({ name, label, value, hint, id = `edit-${name}`, ...inputProps }) {
+  return <div className="editor-field"><label htmlFor={id}>{label} <span aria-hidden="true">*</span></label><input id={id} name={name} defaultValue={value} required aria-describedby={hint ? `${id}-hint` : undefined} {...inputProps} />{hint && <p id={`${id}-hint`}>{hint}</p>}</div>
 }
 
 export default PlaceEditModal
