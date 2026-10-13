@@ -100,7 +100,7 @@ function AdminDashboard({
         <span className="admin-nav-label">MANAGEMENT</span>
         <nav aria-label="Administrator navigation">{navigation.map(item => <button key={item.id} type="button" className={section === item.id ? 'selected' : ''} aria-current={section === item.id ? 'page' : undefined} onClick={() => navigate(item.id)}><span className="admin-nav-icon" aria-hidden="true">{item.icon}</span><span>{item.label}</span>{item.count != null && <span className="admin-nav-count">{item.count}</span>}</button>)}</nav>
         <div className="admin-sidebar-tip"><span>✦</span><strong>A better day starts here.</strong><p>Keep local destination information clear and up to date.</p></div>
-        <div className="admin-sidebar-bottom"><button type="button" onClick={onNavigateHome}>↗ View website</button><button type="button" onClick={onSignOut}>↪ Sign out</button><div className="admin-identity"><span>A</span><div><strong>Administrator</strong><small>Workspace administrator</small></div></div></div>
+        <div className="admin-sidebar-bottom"><button type="button" onClick={onNavigateHome}>&gt; View website</button><button type="button" onClick={onSignOut}>↪ Sign out</button><div className="admin-identity"><span>A</span><div><strong>Administrator</strong><small>Workspace administrator</small></div></div></div>
       </aside>
       <div className="admin-main">
         <header className="admin-topbar"><div className="admin-breadcrumb"><button type="button" className="admin-menu-toggle" aria-label="Toggle administrator sidebar" aria-expanded={sidebarOpen} aria-controls="admin-sidebar" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button><span>Workspace</span><span>/</span><strong>{navigation.find(item => item.id === section)?.label}</strong></div><div className="admin-topbar-right"><span className="admin-preview-badge"><span /> Preview workspace</span><span className="admin-avatar" aria-label="Administrator">A</span></div></header>
@@ -148,17 +148,17 @@ function AdminDashboard({
 
                 <div className="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between text-sm font-bold text-emerald-800">
                   <span>Manage {card.countLabel}</span>
-                  <span className="transform group-hover:translate-x-1.5 transition-transform" aria-hidden="true">→</span>
+                  <span className="transform group-hover:translate-x-1.5 transition-transform" aria-hidden="true">&gt;</span>
                 </div>
               </button>
             ))}
           </div>
 
           <div className="admin-overview-grid">
-            <section className="admin-panel"><div className="admin-panel-heading"><div><h2>Destination collection</h2><p>Your current attraction records</p></div><button type="button" onClick={() => navigate('places')}>View all →</button></div><div className="admin-recent-list">{places.slice(0, 4).map(place => <button type="button" key={place.id} onClick={() => onViewPlace(place)}><img src={place.images?.[0] || place.image} alt="" /><div><strong>{place.name}</strong><span>{place.type} · {place.distance}</span></div><span aria-hidden="true">↗</span></button>)}{places.length === 0 && <p>No attractions yet. Add your first destination.</p>}</div></section>
+            <section className="admin-panel"><div className="admin-panel-heading"><div><h2>Destination collection</h2><p>Your current attraction records</p></div><button type="button" onClick={() => navigate('places')}>View all &gt;</button></div><div className="admin-recent-list">{places.slice(0, 4).map(place => <button type="button" key={place.id} onClick={() => onViewPlace(place)}><img src={place.images?.[0] || place.image} alt="" /><div><strong>{place.name}</strong><span>{place.type} · {place.distance}</span></div><span aria-hidden="true">&gt;</span></button>)}{places.length === 0 && <p>No attractions yet. Add your first destination.</p>}</div></section>
             <section className="admin-panel"><div className="admin-panel-heading"><div><h2>Category distribution</h2><p>Attraction membership by category</p></div></div><div className="admin-category-bars">{categories.map(category => { const count = places.filter(place => (place.categories || [place.type]).includes(category)).length; return <div key={category}><div><span>{category}</span><strong>{count}</strong></div><div className="admin-bar-track"><span style={{ width: `${places.length ? count / places.length * 100 : 0}%` }} /></div></div> })}{categories.length === 0 && <p>No categories available.</p>}</div></section>
           </div>
-          <section className="admin-quality"><span className="admin-quality-icon">◎</span><div><h2>Location data coverage</h2><p>{locatedPlaces} of {places.length} attractions have coordinates. Review missing locations in attraction management.</p></div><button type="button" onClick={() => navigate('places')}>Review places →</button></section>
+          <section className="admin-quality"><span className="admin-quality-icon">◎</span><div><h2>Location data coverage</h2><p>{locatedPlaces} of {places.length} attractions have coordinates. Review missing locations in attraction management.</p></div><button type="button" onClick={() => navigate('places')}>Review places &gt;</button></section>
           {/* Quick Summary Banner */}
           <div className="p-6 rounded-3xl bg-stone-100/70 border border-stone-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
