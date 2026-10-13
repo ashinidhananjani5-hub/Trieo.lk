@@ -101,7 +101,7 @@ function PlaceViewModal({ place, onClose }) {
             </div>
             <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/60">
               <span className="text-sm font-bold uppercase text-stone-400 block">Location</span>
-              <span className="text-sm font-mono font-bold text-stone-900 mt-0.5 block truncate">
+              <span className="text-sm font-sans tabular-nums font-bold text-stone-900 mt-0.5 block truncate">
                 {place.latitude != null && place.longitude != null ? `${place.latitude}, ${place.longitude}` : 'N/A'}
               </span>
             </div>

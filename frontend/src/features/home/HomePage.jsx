@@ -11,6 +11,17 @@ function HomePage({ places, onOpenLogin, slideIndex, onSlideChange }) {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const root = useRef(null)
+  const carousel = useRef(null)
+  const interacting = useRef(false)
+  const [carouselPaused, setCarouselPaused] = useState(false)
+  const moveCards = (direction, automatic = false) => {
+    const track = carousel.current
+    if (!track || track.scrollWidth <= track.clientWidth + 2) return
+    const distance = track.firstElementChild.getBoundingClientRect().width + 24
+    const atEnd = track.scrollLeft >= track.scrollWidth - track.clientWidth - 4
+    const atStart = track.scrollLeft <= 4
+    track.scrollTo({ left: direction > 0 && atEnd ? 0 : direction < 0 && atStart ? track.scrollWidth : track.scrollLeft + direction * distance, behavior: automatic || !window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'instant' })
+  }
   const categories = ['All', ...new Set(places.flatMap(p => p.categories || [p.type]))]
   const activeSlide = slides[slideIndex]
   const filteredPlaces = places.filter(place =>
@@ -30,6 +41,23 @@ function HomePage({ places, onOpenLogin, slideIndex, onSlideChange }) {
     root.current.querySelectorAll('.reveal').forEach(element => observer.observe(element))
     return () => observer.disconnect()
   }, [])
+
+  useEffect(() => {
+    carousel.current?.scrollTo({ left: 0, behavior: 'instant' })
+  }, [selectedCategory, searchQuery])
+
+  useEffect(() => {
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const timer = window.setInterval(() => {
+      if (carouselPaused || interacting.current || motion.matches || document.hidden) return
+      const track = carousel.current
+      if (!track) return
+      const bounds = track.getBoundingClientRect()
+      if (bounds.bottom <= 0 || bounds.top >= window.innerHeight) return
+      moveCards(1, true)
+    }, 4500)
+    return () => window.clearInterval(timer)
+  }, [carouselPaused])
 
   return (
     <main ref={root} className="travel-home">
@@ -62,10 +90,11 @@ function HomePage({ places, onOpenLogin, slideIndex, onSlideChange }) {
         <a href="#places" className="search-action">Discover <span aria-hidden="true">→</span></a>
       </div>
 
-      <section id="places" className="home-container destinations-section">
+      <section id="places" className="destinations-section">
         <div id="discover" className="section-heading reveal"><div><span className="eyebrow">THE BEST DAYS START NEARBY</span><h2>Small escapes.<br /><em>Beautiful discoveries.</em></h2></div><p>From wildlife to quiet green spaces, find a place that feels like your kind of adventure.</p></div>
         <div className="destination-toolbar"><div className="category-list" aria-label="Destination categories">{categories.map(category => <button key={category} className={selectedCategory === category ? 'selected' : ''} aria-pressed={selectedCategory === category} onClick={() => setSelectedCategory(category)}>{category === 'All' ? 'All experiences' : category}</button>)}</div><span className="result-count" role="status">{filteredPlaces.length} places to discover</span></div>
-        {filteredPlaces.length ? <div className="destination-grid">{filteredPlaces.map((place, index) => <article key={place.id} className="destination-card" style={{ '--card-delay': `${index * 65}ms` }}><div className="destination-photo"><img src={place.images?.[0] || place.image} alt={place.name} loading="lazy" /><span className="place-category">{(place.categories || [place.type])[0]}</span><span className="photo-arrow" aria-hidden="true">↗</span><div className="photo-distance">◎ {place.distance} from Padalangala</div></div><div className="destination-body"><h3>{place.name}</h3><p>{place.description}</p><div className="destination-card-bottom"><span>◷ {place.duration}</span><button onClick={() => onOpenLogin('Tourist')}>Plan a visit <span aria-hidden="true">→</span></button></div></div></article>)}</div> : <div className="empty-destinations"><h3>No destinations found</h3><p>Try another search or explore all experiences.</p><button className="travel-button primary" onClick={() => { setSearchQuery(''); setSelectedCategory('All') }}>Reset filters</button></div>}
+        {filteredPlaces.length > 1 && <div className="destination-carousel-controls"><span>Swipe or use the arrows to explore</span><div><button type="button" aria-pressed={carouselPaused} onClick={() => setCarouselPaused(!carouselPaused)}>{carouselPaused ? 'Play slideshow' : 'Pause slideshow'}</button><button type="button" aria-label="Previous destinations" onClick={() => moveCards(-1)}>←</button><button type="button" aria-label="Next destinations" onClick={() => moveCards(1)}>→</button></div></div>}
+        {filteredPlaces.length ? <div ref={carousel} className="destination-grid destination-carousel" role="region" aria-label="Destination carousel" tabIndex={0} onMouseEnter={() => { interacting.current = true }} onMouseLeave={() => { interacting.current = false }} onFocusCapture={() => { interacting.current = true }} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) interacting.current = false }} onTouchStart={() => { interacting.current = true }} onTouchEnd={() => { interacting.current = false }} onKeyDown={event => { if (event.target !== event.currentTarget) return; if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault(); moveCards(event.key === 'ArrowRight' ? 1 : -1) } }}>{filteredPlaces.map((place, index) => <article key={place.id} className="destination-card" style={{ '--card-delay': `${index * 65}ms` }}><div className="destination-photo"><img src={place.images?.[0] || place.image} alt={place.name} loading="lazy" /><span className="place-category">{(place.categories || [place.type])[0]}</span><span className="photo-arrow" aria-hidden="true">↗</span><div className="photo-distance">◎ {place.distance} from Padalangala</div></div><div className="destination-body"><h3>{place.name}</h3><p>{place.description}</p><div className="destination-card-bottom"><span>◷ {place.duration}</span><button onClick={() => onOpenLogin('Tourist')}>Plan a visit <span aria-hidden="true">→</span></button></div></div></article>)}</div> : <div className="empty-destinations"><h3>No destinations found</h3><p>Try another search or explore all experiences.</p><button className="travel-button primary" onClick={() => { setSearchQuery(''); setSelectedCategory('All') }}>Reset filters</button></div>}
       </section>
 
       <section id="how-it-works" className="how-section"><div className="home-container"><div className="section-heading reveal"><div><span className="eyebrow">LESS PLANNING. MORE LIVING.</span><h2>Your next day out,<br /><em>in three simple steps.</em></h2></div><a href="#places" className="text-link">Let's find your first stop ↗</a></div><div className="steps-grid">{steps.map(([number, title, text]) => <article key={number} className="step-card reveal"><span className="step-number">{number}</span><div className="step-rule" /><h3>{title}</h3><p>{text}</p></article>)}</div></div></section>

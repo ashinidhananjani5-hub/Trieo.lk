@@ -166,7 +166,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
                 defaultValue={place.latitude ?? ''}
                 placeholder="e.g. 6.1524"
                 required
-                className="w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all font-mono"
+                className="w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all font-sans tabular-nums"
               />
             </div>
             <div>
@@ -182,7 +182,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
                 defaultValue={place.longitude ?? ''}
                 placeholder="e.g. 81.0184"
                 required
-                className="w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all font-mono"
+                className="w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50/60 focus:bg-white text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all font-sans tabular-nums"
               />
             </div>
           </div>

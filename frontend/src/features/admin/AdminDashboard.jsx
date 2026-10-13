@@ -247,13 +247,13 @@ function AdminDashboard({
                           ))}
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-sm text-stone-600 font-mono">
+                      <td className="py-4 px-6 text-sm text-stone-600 font-sans tabular-nums">
                         {place.latitude != null && place.longitude != null ? (
                           <span className="bg-stone-100 px-2 py-1 rounded-md">
                             {place.latitude}, {place.longitude}
                           </span>
                         ) : (
-                          <span className="text-stone-400 italic">Not set</span>
+                          <span className="text-stone-400">Not set</span>
                         )}
                       </td>
                       <td className="py-4 px-6 text-sm text-stone-600 font-medium">
