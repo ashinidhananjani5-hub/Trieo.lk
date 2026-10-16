@@ -109,7 +109,7 @@ function App() {
     if (writeInFlight.current || session?.role !== 'Administrator') return
     const formData = new FormData(event.currentTarget)
     const selectedCategories = formData.getAll('categories').map(String)
-    const images = formData.getAll('images').map(String).map((url) => url.trim())
+    const images = formData.getAll('images').map(String).map((url) => url.trim()).filter(Boolean)
     const openingFrom = String(formData.get('openingFrom') || '')
     const openingTo = String(formData.get('openingTo') || '')
     const placeDetails = {
@@ -127,6 +127,9 @@ function App() {
       hours: `${openingFrom} – ${openingTo}`,
       tag: String(formData.get('tag') || '').trim(),
       description: String(formData.get('description') || '').trim(),
+      entranceFee: String(formData.get('entranceFee') || '').trim(),
+      travelTips: String(formData.get('travelTips') || '').trim(),
+      facilities: String(formData.get('facilities') || '').trim(),
     }
 
     if (!placeDetails.name || !placeDetails.description || !placeDetails.tag) {
@@ -139,8 +142,8 @@ function App() {
       return
     }
 
-    if (images.length < 3 || images.some((image) => !image)) {
-      setNotice('Enter at least three image URLs for this attraction.')
+    if (images.length < 3 || images.length > 5) {
+      setNotice('Enter between three and five image URLs for this attraction.')
       return
     }
 
@@ -313,7 +316,7 @@ function App() {
               id: '',
               name: '',
               categories: [],
-              images: ['', '', ''],
+              images: ['', '', '', '', ''],
               distance: '',
               duration: '',
               latitude: '',
