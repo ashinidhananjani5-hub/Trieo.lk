@@ -1,6 +1,7 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth'
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { auth, db, requireFirebase } from '../../lib/firebase.js'
+import { validateLoginRole } from '../../services/validation.js'
 
 export async function accountRole(user) {
   const record = await getDoc(doc(db, 'admins', user.uid))
@@ -16,7 +17,7 @@ export async function loginAccount(email, password, requestedRole) {
   requireFirebase()
   const { user } = await signInWithEmailAndPassword(auth, email, password)
   try {
-    if (requestedRole === 'Administrator' && await accountRole(user) !== 'Administrator') throw new Error('This account does not have administrator access.')
+    validateLoginRole(await accountRole(user), requestedRole)
     await ensureProfile(user)
     return user
   } catch (error) { await signOut(auth); throw error }

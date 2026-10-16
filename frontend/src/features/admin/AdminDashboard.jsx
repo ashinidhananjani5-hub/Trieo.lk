@@ -104,9 +104,9 @@ function AdminDashboard({
         <div className="admin-sidebar-bottom"><button type="button" onClick={onNavigateHome}>&gt; View website</button><div className="admin-identity"><span>A</span><div><strong>Administrator</strong><small>Workspace administrator</small></div></div></div>
       </aside>
       <div className="admin-main">
-        <header className="admin-topbar"><div className="admin-breadcrumb"><button type="button" className="admin-menu-toggle" aria-label="Toggle administrator sidebar" aria-expanded={sidebarOpen} aria-controls="admin-sidebar" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button><div className="admin-header-title"><span className="eyebrow">TRIEO.LK CONTROL CENTER</span><h1>{section === 'overview' ? 'Welcome back, Administrator' : activeMetric?.title}</h1></div></div><div className="admin-topbar-right"><span className="admin-preview-badge"><span /> Firebase workspace</span><button type="button" className="admin-signout" onClick={onSignOut}>Sign out &gt;</button></div></header>
+        <header className="admin-topbar"><div className="admin-breadcrumb"><button type="button" className="admin-menu-toggle" aria-label="Toggle administrator sidebar" aria-expanded={sidebarOpen} aria-controls="admin-sidebar" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button><div className="admin-header-title"><span className="eyebrow">TRIEO.LK CONTROL CENTER</span><h1>{section === 'overview' ? 'Welcome back, Administrator' : activeMetric?.title}</h1></div></div><div className="admin-topbar-right"><button type="button" className="admin-signout" onClick={onSignOut}>Sign out &gt;</button></div></header>
         <div className="admin-content">
-          <div className="admin-page-heading"><div><p>{section === 'overview' ? 'A clear view of your destinations, categories, and community.' : activeMetric?.description}</p></div><button type="button" className="admin-primary" onClick={onAddPlace}>+ Add attraction</button></div>
+          <div className="admin-page-heading"><div><p>{section === 'overview' ? 'A clear view of your destinations, categories, and community.' : activeMetric?.description}</p></div>{['overview', 'places'].includes(section) && <button type="button" className="admin-primary" onClick={onAddPlace}>+ Add attraction</button>}</div>
           {section !== 'overview' && <div className="admin-searchbar"><label htmlFor="admin-search" className="sr-only">Search {section}</label><span aria-hidden="true">⌕</span><input id="admin-search" value={search} onChange={event => setSearch(event.target.value)} placeholder={`Search ${section === 'places' ? 'attractions by name or category' : section === 'users' ? 'accounts by name, email, or role' : 'categories'}…`} />{search && <button type="button" onClick={() => setSearch('')}>Clear</button>}</div>}
       {places.length === 0 && <div className="backend-seed-panel"><div><strong>Your attraction collection is empty</strong><p>Add verified attractions, or import the four existing starter records. Starter records need location and tourism data verification.</p></div><button type="button" disabled={saving} onClick={onSeedPlaces}>{saving ? 'Saving…' : 'Import starter places'}</button></div>}
       {saving && <p className="backend-saving" role="status">Saving changes to Firestore…</p>}
@@ -159,30 +159,21 @@ function AdminDashboard({
 
           <div className="admin-overview-grid">
             <section className="admin-panel"><div className="admin-panel-heading"><div><h2>Destination collection</h2><p>Your current attraction records</p></div><button type="button" onClick={() => navigate('places')}>View all &gt;</button></div><div className="admin-recent-list">{places.slice(0, 4).map(place => <button type="button" key={place.id} onClick={() => onViewPlace(place)}><img src={place.images?.[0] || place.image} alt="" /><div><strong>{place.name}</strong><span>{place.type} · {place.distance}</span></div><span aria-hidden="true">&gt;</span></button>)}{places.length === 0 && <p>No attractions yet. Add your first destination.</p>}</div></section>
-            <section className="admin-panel"><div className="admin-panel-heading"><div><h2>Category distribution</h2><p>Attraction membership by category</p></div></div><div className="admin-category-bars">{categories.map(category => { const count = places.filter(place => (place.categories || [place.type]).includes(category)).length; return <div key={category}><div><span>{category}</span><strong>{count}</strong></div><div className="admin-bar-track"><span style={{ width: `${places.length ? count / places.length * 100 : 0}%` }} /></div></div> })}{categories.length === 0 && <p>No categories available.</p>}</div></section>
+            <section className="admin-panel category-distribution-panel" aria-labelledby="category-distribution-title">
+              <div className="admin-panel-heading"><div><h2 id="category-distribution-title">Category distribution</h2><p>See where your attractions belong.</p></div><span className="distribution-total">{categories.length} categories</span></div>
+              {categories.length > 0 ? <ul className="category-distribution-list">{categories.map((category, index) => {
+                const count = places.filter(place => (place.categories || [place.type]).includes(category)).length
+                const percent = places.length ? Math.round(count / places.length * 100) : 0
+                return <li key={category} className={count === 0 ? 'distribution-empty' : ''} style={{ '--category-tone': ['#397556', '#4a7f8b', '#8a7299', '#a48547', '#70894c', '#577b9e', '#b17d62'][index % 7] }}>
+                  <div className="distribution-row"><div className="distribution-name"><span className="distribution-dot" aria-hidden="true" /><span>{category}</span></div><span className="distribution-count">{count} {count === 1 ? 'place' : 'places'}</span></div>
+                  <div className="distribution-meter" role="progressbar" aria-label={`${category} attractions`} aria-valuemin={0} aria-valuemax={Math.max(1, places.length)} aria-valuenow={count} aria-valuetext={`${count} of ${places.length} attractions`}><span style={{ width: `${percent}%` }} /></div>
+                </li>
+              })}</ul> : <p className="distribution-placeholder">Add categories to start organizing your destinations.</p>}
+              <div className="distribution-footer"><span>Places may belong to more than one category.</span><button type="button" onClick={() => navigate('categories')}>Manage categories &gt;</button></div>
+            </section>
           </div>
           <section className="admin-quality"><span className="admin-quality-icon">◎</span><div><h2>Location data coverage</h2><p>{locatedPlaces} of {places.length} attractions have coordinates. Review missing locations in attraction management.</p></div><button type="button" onClick={() => navigate('places')}>Review places &gt;</button></section>
-          {/* Quick Summary Banner */}
-          <div className="p-6 rounded-3xl bg-stone-100/70 border border-stone-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#1b4332] text-white flex items-center justify-center font-bold">
-                ⓘ
-              </div>
-              <div>
-                <h4 className="font-bold text-stone-900 text-sm">Connected to Firestore</h4>
-                <p className="text-sm text-stone-600">
-                  Attraction changes are saved to Firestore and shared across devices.
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={onAddPlace}
-              className="px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm shadow-xs transition-colors whitespace-nowrap"
-            >
-              + Quick Add Attraction
-            </button>
-          </div>
+
         </div>
       )}
 
@@ -197,16 +188,6 @@ function AdminDashboard({
                 Total <strong>{places.length}</strong> attractions currently accessible to tourists.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={onAddPlace}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm sm:text-sm shadow-sm hover:shadow transition-all active:scale-95"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
-              </svg>
-              <span>Add Attraction</span>
-            </button>
           </div>
 
           {/* Table Container with Sticky Header */}
@@ -363,7 +344,7 @@ function AdminDashboard({
           )}
 
           {/* Categories Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="admin-category-grid">
             {visibleCategories.map((category) => {
               const placeCount = places.filter(
                 (p) => (p.categories && p.categories.includes(category)) || p.type === category,
@@ -372,9 +353,9 @@ function AdminDashboard({
               return (
                 <div
                   key={category}
-                  className="p-5 rounded-2xl border border-stone-200/80 bg-white shadow-xs hover:border-emerald-200 flex items-center justify-between gap-4"
+                  className="admin-category-card"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="admin-category-info">
                     <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-100 flex items-center justify-center font-bold text-sm">
                       ◈
                     </div>
@@ -386,28 +367,28 @@ function AdminDashboard({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5">
+                  <div className="admin-category-actions">
                     <button
                       type="button"
+                      disabled={saving}
+                      aria-label={`Rename ${category}`}
                       onClick={() => setCategoryEditor({ current: category, name: category })}
-                      className="px-3 py-1.5 rounded-lg text-sm font-semibold text-stone-600 hover:text-emerald-800 hover:bg-stone-100 transition-colors"
+                      className="category-rename-button"
                     >
                       Rename
                     </button>
                     <button
                       type="button"
-                      disabled={placeCount > 0}
-                      onClick={() => onDeleteCategory(category)}
+                      disabled={placeCount > 0 || saving}
+                      aria-label={`Delete ${category}`}
+                      onClick={() => { if (window.confirm(`Delete the category "${category}"?`)) onDeleteCategory(category) }}
                       title={placeCount > 0 ? 'Move attractions before deleting' : 'Delete category'}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                        placeCount > 0
-                          ? 'text-stone-300 cursor-not-allowed'
-                          : 'text-rose-600 hover:bg-rose-50'
-                      }`}
+                      className="category-delete-button"
                     >
                       Delete
                     </button>
                   </div>
+                  {placeCount > 0 && <p className="category-delete-hint">Move its {placeCount === 1 ? 'attraction' : 'attractions'} to another category before deleting.</p>}
                 </div>
               )
             })}

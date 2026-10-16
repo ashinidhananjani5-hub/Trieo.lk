@@ -630,3 +630,38 @@
 
 .backend-status{margin:18px auto;padding:16px 22px;background:#fff5df;border:1px solid #e8d5a7;border-radius:12px;color:#6e5424;max-width:1100px;font-size:16px;line-height:1.7;width:calc(100% - 40px)}
 .backend-seed-panel{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:22px;background:#eef4e6;border:1px solid #d6e1ca;border-radius:14px;margin-bottom:24px}.backend-seed-panel p{font-size:15px;line-height:1.7;max-width:700px;margin-top:8px}.backend-seed-panel button{background:#28563c;color:#fff;padding:12px 18px;border-radius:9px;cursor:pointer;white-space:nowrap}.backend-saving{font-size:14px;line-height:1.7;color:#547046;padding:12px 22px}button:disabled{cursor:not-allowed;opacity:.6}@media(max-width:767px){.backend-seed-panel{flex-direction:column;align-items:flex-start}}
+
+/* Category actions remain visible and comfortably inside each card. */
+.admin-category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 18px; }
+.admin-category-card { min-width: 0; padding: 22px; border: 1px solid #dce5d5; border-radius: 16px; background: #fbfcf8; display: flex; flex-direction: column; gap: 20px; }
+.admin-category-info { display: flex; align-items: center; gap: 13px; min-width: 0; }
+.admin-category-info > div:first-child { flex-shrink: 0; }
+.admin-category-info h4 { overflow-wrap: anywhere; font-size: 17px; line-height: 1.5; }
+.admin-category-info span { display: block; font-size: 14px; margin-top: 4px; color: #6b7b61; }
+.admin-category-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto; padding-top: 16px; border-top: 1px solid #e1e8d9; }
+.admin-category-actions button { flex: 1; min-height: 44px; padding: 10px 14px; border-radius: 9px; border: 1px solid; font-size: 15px; font-weight: 600; cursor: pointer; }
+.admin-category-actions .category-rename-button { background: #eaf2e3; border-color: #c6d9b8; color: #365e3b; }
+.admin-category-actions .category-rename-button:hover:not(:disabled) { background: #dae9cf; }
+.admin-category-actions .category-delete-button { background: #fff1ee; border-color: #ebc7bf; color: #a34035; }
+.admin-category-actions .category-delete-button:hover:not(:disabled) { background: #ffe1db; }
+.admin-category-actions button:disabled { background: #edf0e9; border-color: #dce2d5; color: #78836e; opacity: 1; cursor: not-allowed; }
+.category-delete-hint { font-size: 13px; line-height: 1.6; color: #6c7c62; margin-top: -8px; }
+
+/* Category overview: readable counts, quiet color accents, no nested scrolling. */
+.admin-workspace .admin-overview-grid { align-items: start; }
+.category-distribution-panel .admin-panel-heading { flex-wrap: wrap; gap: 12px; }
+.distribution-total { flex-shrink: 0; font-size: 12px; color: #56724b; background: #eef4e8; border: 1px solid #dce7d1; border-radius: 25px; padding: 5px 10px; white-space: nowrap; }
+.category-distribution-list { display: grid; gap: 11px; padding: 0; margin: 0; list-style: none; }
+.category-distribution-list li { padding: 13px 15px; border: 1px solid #e2e9dc; border-radius: 11px; background: #f9fbf6; }
+.distribution-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 10px; }
+.distribution-name { display: flex; align-items: center; gap: 10px; min-width: 0; color: #354e30; font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+.distribution-dot { width: 9px; height: 9px; flex-shrink: 0; border-radius: 50%; background: var(--category-tone); }
+.distribution-count { font-size: 12px; font-weight: 600; color: #3e6342; background: #e6efdf; padding: 4px 9px; border-radius: 7px; white-space: nowrap; }
+.distribution-meter { height: 7px; overflow: hidden; border-radius: 10px; background: #e5ebdf; }
+.distribution-meter > span { display: block; height: 100%; border-radius: inherit; background: var(--category-tone); }
+.distribution-empty { background: #fcfcfa !important; }
+.distribution-empty .distribution-count { color: #738069; background: #f0f2eb; }
+.distribution-empty .distribution-dot { opacity: .55; }
+.distribution-footer { display: flex; flex-wrap: wrap; gap: 13px; justify-content: space-between; align-items: center; padding-top: 18px; margin-top: 18px; border-top: 1px solid #e3e9db; }
+.distribution-footer > span, .distribution-placeholder { font-size: 13px; line-height: 1.6; color: #6d7e60; }
+.distribution-footer button { font-size: 14px; font-weight: 600; color: #3b7149; cursor: pointer; }

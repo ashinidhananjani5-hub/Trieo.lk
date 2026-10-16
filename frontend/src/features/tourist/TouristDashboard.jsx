@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 
 function TouristDashboard({ places, savedPlaces, userName, notice, onToggleSavedPlace, onViewPlace, onClearPlan, onMovePlace, isPlanOpen, onOpenPlan, onClosePlan, planSaving, planReady }) {
   const planDialog = useRef(null)
+  const closeFromKeyboard = useEffectEvent(() => onClosePlan())
   useEffect(() => {
     if (!isPlanOpen) return
     const previous = document.activeElement
@@ -11,7 +12,7 @@ function TouristDashboard({ places, savedPlaces, userName, notice, onToggleSaved
     const handleKey = event => {
       // A place-details dialog can open above this drawer.
       if (document.querySelector('.place-details-dialog')) return
-      if (event.key === 'Escape') onClosePlan()
+      if (event.key === 'Escape') closeFromKeyboard()
       if (event.key !== 'Tab') return
       const controls = [...planDialog.current.querySelectorAll('button, a[href]')].filter(element => !element.disabled)
       const first = controls[0], last = controls[controls.length - 1]
@@ -20,7 +21,7 @@ function TouristDashboard({ places, savedPlaces, userName, notice, onToggleSaved
     }
     document.addEventListener('keydown', handleKey)
     return () => { document.body.style.overflow = overflow; document.removeEventListener('keydown', handleKey); previous?.focus() }
-  }, [isPlanOpen, onClosePlan])
+  }, [isPlanOpen])
   const [category, setCategory] = useState('All')
   const [search, setSearch] = useState('')
   const categories = ['All', ...new Set(places.flatMap(place => place.categories || [place.type]))]

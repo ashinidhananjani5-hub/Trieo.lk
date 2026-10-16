@@ -231,6 +231,10 @@ function App() {
           setActiveView('home')
         }}
         onNavigateTourist={() => {
+          if (session?.role === 'Administrator') {
+            setActiveView('admin')
+            return
+          }
           setIsTouristPlanOpen(true)
           setActiveView('tourist')
         }}
@@ -267,7 +271,7 @@ function App() {
           onCreateAccount={createAccount}
         />
       )}
-      {activeView === 'tourist' && session && authReady && (
+      {activeView === 'tourist' && session?.role === 'Tourist' && authReady && (
         <TouristDashboard
           isPlanOpen={isTouristPlanOpen}
           onOpenPlan={() => setIsTouristPlanOpen(true)}

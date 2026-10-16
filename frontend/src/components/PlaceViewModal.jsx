@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 
 function PlaceViewModal({ place, onClose }) {
   const dialog = useRef(null)
+  const closeFromKeyboard = useEffectEvent(() => onClose())
   useEffect(() => {
     if (!place) return
     const previous = document.activeElement
@@ -9,7 +10,7 @@ function PlaceViewModal({ place, onClose }) {
     document.body.style.overflow = 'hidden'
     dialog.current?.querySelector('button')?.focus()
     const handleKey = event => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') closeFromKeyboard()
       if (event.key !== 'Tab') return
       const controls = [...dialog.current.querySelectorAll('button, a[href], iframe')]
       const first = controls[0], last = controls[controls.length - 1]
@@ -18,7 +19,7 @@ function PlaceViewModal({ place, onClose }) {
     }
     document.addEventListener('keydown', handleKey)
     return () => { document.body.style.overflow = overflow; document.removeEventListener('keydown', handleKey); previous?.focus() }
-  }, [place, onClose])
+  }, [place])
   if (!place) return null
   const categories = place.categories || [place.type].filter(Boolean)
   const images = place.images?.length ? place.images : [place.image].filter(Boolean)

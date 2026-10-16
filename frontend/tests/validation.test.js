@@ -1,6 +1,20 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { cleanPlan, friendlyError, validateCategory } from '../src/services/validation.js'
+import { cleanPlan, friendlyError, validateCategory, validateLoginRole } from '../src/services/validation.js'
+
+test('login roles allow matching accounts and reject both crossover directions', () => {
+  assert.doesNotThrow(() => validateLoginRole('Administrator', 'Administrator'))
+  assert.doesNotThrow(() => validateLoginRole('Tourist', 'Tourist'))
+  assert.throws(() => validateLoginRole('Administrator', 'Tourist'), /Unable to sign in/)
+  assert.throws(() => validateLoginRole('Tourist', 'Administrator'), /Unable to sign in/)
+  assert.throws(() => validateLoginRole('Tourist', 'Unknown'), /valid account type/)
+  for (const [actual, requested] of [['Administrator', 'Tourist'], ['Tourist', 'Administrator']]) {
+    try { validateLoginRole(actual, requested) } catch (error) {
+      assert.equal(error.message, friendlyError({ code: 'auth/invalid-credential' }))
+      assert.doesNotMatch(error.message, /administrator|tourist/i)
+    }
+  }
+})
 
 test('day plan rejects malformed input and preserves unique selected order', () => {
   assert.deepEqual(cleanPlan(['second', 'first', 'second']), ['second', 'first'])

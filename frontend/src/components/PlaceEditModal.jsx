@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useEffectEvent, useRef } from 'react'
 
 function parseOpeningTime(hours, period) {
   const match = hours?.match(
@@ -15,6 +15,7 @@ function parseOpeningTime(hours, period) {
 
 function PlaceEditModal({ place, categories, notice, onClose, onSave, saving }) {
   const dialog = useRef(null)
+  const closeFromKeyboard = useEffectEvent(() => onClose())
   const alert = useRef(null)
   useEffect(() => {
     if (!place) return
@@ -23,7 +24,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave, saving }) 
     document.body.style.overflow = 'hidden'
     dialog.current?.querySelector('input')?.focus()
     const keydown = event => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') closeFromKeyboard()
       if (event.key !== 'Tab') return
       const controls = [...dialog.current.querySelectorAll('button, input, textarea')].filter(item => !item.disabled)
       const first = controls[0], last = controls[controls.length - 1]
@@ -32,7 +33,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave, saving }) 
     }
     document.addEventListener('keydown', keydown)
     return () => { document.body.style.overflow = overflow; document.removeEventListener('keydown', keydown); previous?.focus() }
-  }, [place, onClose])
+  }, [place])
   useEffect(() => { if (place && notice) alert.current?.scrollIntoView({ block: 'nearest', behavior: 'instant' }) }, [notice, place])
   if (!place) return null
   const images = place.images?.length ? place.images : [place.image || '']

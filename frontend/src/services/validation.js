@@ -1,8 +1,15 @@
+export function validateLoginRole(actualRole, requestedRole) {
+  if (!['Tourist', 'Administrator'].includes(requestedRole)) throw new Error('Select a valid account type.')
+  if (actualRole !== requestedRole) {
+    throw new Error('Unable to sign in. Please check your login details and try again.')
+  }
+}
+
 export function friendlyError(error) {
   const messages = {
-    'auth/invalid-credential': 'The email or password is incorrect.',
-    'auth/user-not-found': 'The email or password is incorrect.',
-    'auth/wrong-password': 'The email or password is incorrect.',
+    'auth/invalid-credential': 'Unable to sign in. Please check your login details and try again.',
+    'auth/user-not-found': 'Unable to sign in. Please check your login details and try again.',
+    'auth/wrong-password': 'Unable to sign in. Please check your login details and try again.',
     'auth/email-already-in-use': 'This email already has an account. Sign in instead.',
     'auth/invalid-email': 'Enter a valid email address.',
     'auth/weak-password': 'Choose a stronger password with at least 8 characters.',
