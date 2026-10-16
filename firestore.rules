@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function owner(uid) { return signedIn() && request.auth.uid == uid; }
+    function admin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.enabled == true;
+    }
+    function validPlace(data) {
+      return data.keys().hasAll(['name', 'categories', 'type', 'description', 'distance', 'duration', 'image', 'hours', 'updatedAt'])
+        && data.keys().hasOnly(['name', 'categories', 'type', 'description', 'distance', 'duration', 'image', 'images', 'hours', 'openingFrom', 'openingTo', 'latitude', 'longitude', 'tag', 'entranceFee', 'travelTips', 'facilities', 'updatedAt'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.description is string && data.description.size() > 0 && data.description.size() <= 20000
+        && data.categories is list && data.categories.size() > 0 && data.categories.size() <= 20
+        && data.categories.toSet().size() == data.categories.size()
+        && data.categories.toSet().hasOnly(getAfter(/databases/$(database)/documents/categories/catalog).data.names)
+        && data.type is string && data.type in data.categories
+        && data.distance is string && data.distance.size() > 0 && data.distance.size() <= 100
+        && data.duration is string && data.duration.size() > 0 && data.duration.size() <= 100
+        && data.hours is string && data.hours.size() <= 200
+        && data.image is string && data.image.size() <= 2048 && data.image.matches('https?://.*')
+        && (!('images' in data) || (data.images is list && data.images.size() <= 20))
+        && ((!('latitude' in data) && !('longitude' in data)) ||
+          (data.latitude is number && data.longitude is number && data.latitude >= -90 && data.latitude <= 90 && data.longitude >= -180 && data.longitude <= 180))
+        && data.updatedAt == request.time;
+    }
+    match /admins/{uid} {
+      // Admins are provisioned through the trusted Firebase Console/Admin SDK only.
+      allow get: if owner(uid);
+      allow list, create, update, delete: if false;
+    }
+    match /places/{id} {
+      allow read: if true;
+      allow create, update: if admin() && validPlace(request.resource.data);
+      allow delete: if admin();
+    }
+    match /categories/{id} {
+      allow read: if true;
+      allow create, update: if admin() && id == 'catalog'
+        && request.resource.data.keys().hasOnly(['names', 'updatedAt'])
+        && request.resource.data.names is list
+        && request.resource.data.names.size() <= 100
+        && request.resource.data.names.toSet().size() == request.resource.data.names.size()
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+    }
+    match /users/{uid} {
+      allow get: if owner(uid) || admin();
+      allow list: if admin();
+      allow create: if owner(uid)
+        && request.resource.data.keys().hasOnly(['name', 'email', 'role', 'createdAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 120
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.role == 'Tourist'
+        && request.resource.data.createdAt == request.time;
+      allow update: if owner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 120;
+      allow delete: if false;
+    }
+    match /plans/{uid} {
+      allow read, delete: if owner(uid);
+      allow create, update: if owner(uid)
+        && request.resource.data.keys().hasOnly(['placeIds', 'updatedAt'])
+        && request.resource.data.placeIds is list && request.resource.data.placeIds.size() <= 100
+        && request.resource.data.placeIds.toSet().size() == request.resource.data.placeIds.size()
+        && request.resource.data.updatedAt == request.time;
+    }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

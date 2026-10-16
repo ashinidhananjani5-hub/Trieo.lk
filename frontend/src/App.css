@@ -599,3 +599,6 @@
 .plan-drawer-footer button { width: 100%; background: #28583e; color: white; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; }
 @media (max-width: 1000px) { .tourist-workspace .tourist-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 530px) { .tourist-workspace .tourist-card-grid { grid-template-columns: 1fr; } .tourist-workspace .tourist-plan-drawer { border-radius: 0; } }
+
+.backend-status{margin:18px auto;padding:16px 22px;background:#fff5df;border:1px solid #e8d5a7;border-radius:12px;color:#6e5424;max-width:1100px;font-size:16px;line-height:1.7;width:calc(100% - 40px)}
+.backend-seed-panel{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:22px;background:#eef4e6;border:1px solid #d6e1ca;border-radius:14px;margin-bottom:24px}.backend-seed-panel p{font-size:15px;line-height:1.7;max-width:700px;margin-top:8px}.backend-seed-panel button{background:#28563c;color:#fff;padding:12px 18px;border-radius:9px;cursor:pointer;white-space:nowrap}.backend-saving{font-size:14px;line-height:1.7;color:#547046;padding:12px 22px}button:disabled{cursor:not-allowed;opacity:.6}@media(max-width:767px){.backend-seed-panel{flex-direction:column;align-items:flex-start}}

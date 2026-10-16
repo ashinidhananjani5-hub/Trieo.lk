@@ -13,7 +13,7 @@ function parseOpeningTime(hours, period) {
   return `${String(hour24).padStart(2, '0')}:${minute}`
 }
 
-function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
+function PlaceEditModal({ place, categories, notice, onClose, onSave, saving }) {
   const dialog = useRef(null)
   const alert = useRef(null)
   useEffect(() => {
@@ -39,7 +39,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
   const selected = place.categories?.length ? place.categories : [place.type].filter(Boolean)
   return <div className="place-editor-overlay" onMouseDown={event => { if (event.target === event.currentTarget) onClose() }}>
     <section ref={dialog} className="place-editor" role="dialog" aria-modal="true" aria-labelledby="edit-title" aria-describedby="edit-help">
-      <header className="place-editor-header"><div><span className="eyebrow">DESTINATION MANAGEMENT</span><h2 id="edit-title">{place.id ? 'Edit attraction' : 'Add a new attraction'}</h2><p id="edit-help">Help visitors discover this place. Fields marked <span aria-hidden="true">*</span> are required.</p></div><button type="button" className="editor-close" aria-label="Close attraction editor" onClick={onClose}>×</button></header>
+      <header className="place-editor-header"><div><span className="eyebrow">DESTINATION MANAGEMENT</span><h2 id="edit-title">{place.id ? 'Edit attraction' : 'Add a new attraction'}</h2><p id="edit-help">Help visitors discover this place. Fields marked <span aria-hidden="true">*</span> are required.</p></div><button type="button" className="editor-close" aria-label="Close attraction editor" disabled={saving} onClick={onClose}>×</button></header>
       <form onSubmit={onSave} className="place-editor-form">
         <div className="place-editor-body">
           {notice && <div ref={alert} className="editor-alert" role="alert">{notice}</div>}
@@ -53,7 +53,7 @@ function PlaceEditModal({ place, categories, notice, onClose, onSave }) {
           <fieldset className="editor-section"><legend><span>03</span> Photos</legend><p className="editor-section-help">Paste three direct image links. Use clear photos of the attraction.</p>{[0, 1, 2].map(index => <EditorField key={index} name="images" id={`edit-image-${index}`} label={`Photo ${index + 1}`} type="url" value={images[index] || ''} placeholder="https://example.com/attraction.jpg" />)}</fieldset>
           <fieldset className="editor-section"><legend><span>04</span> Map location</legend><p className="editor-section-help">Enter verified coordinates so visitors can locate the attraction on the map.</p><div className="editor-two-columns"><EditorField name="latitude" label="Latitude" type="number" value={place.latitude ?? ''} min={-90} max={90} step="any" placeholder="e.g. 6.1524" hint="A number between -90 and 90." /><EditorField name="longitude" label="Longitude" type="number" value={place.longitude ?? ''} min={-180} max={180} step="any" placeholder="e.g. 81.0184" hint="A number between -180 and 180." /></div></fieldset>
         </div>
-        <footer className="place-editor-actions"><span>Review the details before saving.</span><div><button type="button" onClick={onClose}>Cancel</button><button type="submit" className="editor-save">{place.id ? 'Save changes' : 'Add attraction'} &gt;</button></div></footer>
+        <footer className="place-editor-actions"><span>Review the details before saving.</span><div><button type="button" onClick={onClose}>Cancel</button><button type="submit" className="editor-save" disabled={saving}>{saving ? 'Saving…' : place.id ? 'Save changes' : 'Add attraction'} &gt;</button></div></footer>
       </form>
     </section>
   </div>

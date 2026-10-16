@@ -17,6 +17,8 @@ function AdminDashboard({
   onAddCategory,
   onEditCategory,
   onDeleteCategory,
+  onSeedPlaces,
+  saving,
 }) {
   const [categoryEditor, setCategoryEditor] = useState(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -34,15 +36,15 @@ function AdminDashboard({
     { id: 'users', label: 'User accounts', icon: '♙', count: users.length },
   ]
 
-  const saveCategory = (event) => {
+  const saveCategory = async (event) => {
     event.preventDefault()
     const categoryName = String(new FormData(event.currentTarget).get('categoryName') || '').trim()
     if (!categoryName) return
 
     if (categoryEditor.current) {
-      onEditCategory(categoryEditor.current, categoryName)
+      await onEditCategory(categoryEditor.current, categoryName)
     } else {
-      onAddCategory(categoryName)
+      await onAddCategory(categoryName)
     }
     setCategoryEditor(null)
   }
@@ -78,7 +80,7 @@ function AdminDashboard({
     {
       id: 'users',
       title: 'User Accounts',
-      description: 'Review active tourists and administrator credentials in system storage.',
+      description: 'Review active tourists and registered account profiles.',
       count: users.length,
       countLabel: 'Accounts',
       color: 'from-stone-700 to-stone-900',
@@ -102,10 +104,12 @@ function AdminDashboard({
         <div className="admin-sidebar-bottom"><button type="button" onClick={onNavigateHome}>&gt; View website</button><div className="admin-identity"><span>A</span><div><strong>Administrator</strong><small>Workspace administrator</small></div></div></div>
       </aside>
       <div className="admin-main">
-        <header className="admin-topbar"><div className="admin-breadcrumb"><button type="button" className="admin-menu-toggle" aria-label="Toggle administrator sidebar" aria-expanded={sidebarOpen} aria-controls="admin-sidebar" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button><div className="admin-header-title"><span className="eyebrow">TRIEO.LK CONTROL CENTER</span><h1>{section === 'overview' ? 'Welcome back, Administrator' : activeMetric?.title}</h1></div></div><div className="admin-topbar-right"><span className="admin-preview-badge"><span /> Preview workspace</span><button type="button" className="admin-signout" onClick={onSignOut}>Sign out &gt;</button></div></header>
+        <header className="admin-topbar"><div className="admin-breadcrumb"><button type="button" className="admin-menu-toggle" aria-label="Toggle administrator sidebar" aria-expanded={sidebarOpen} aria-controls="admin-sidebar" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button><div className="admin-header-title"><span className="eyebrow">TRIEO.LK CONTROL CENTER</span><h1>{section === 'overview' ? 'Welcome back, Administrator' : activeMetric?.title}</h1></div></div><div className="admin-topbar-right"><span className="admin-preview-badge"><span /> Firebase workspace</span><button type="button" className="admin-signout" onClick={onSignOut}>Sign out &gt;</button></div></header>
         <div className="admin-content">
           <div className="admin-page-heading"><div><p>{section === 'overview' ? 'A clear view of your destinations, categories, and community.' : activeMetric?.description}</p></div><button type="button" className="admin-primary" onClick={onAddPlace}>+ Add attraction</button></div>
           {section !== 'overview' && <div className="admin-searchbar"><label htmlFor="admin-search" className="sr-only">Search {section}</label><span aria-hidden="true">⌕</span><input id="admin-search" value={search} onChange={event => setSearch(event.target.value)} placeholder={`Search ${section === 'places' ? 'attractions by name or category' : section === 'users' ? 'accounts by name, email, or role' : 'categories'}…`} />{search && <button type="button" onClick={() => setSearch('')}>Clear</button>}</div>}
+      {places.length === 0 && <div className="backend-seed-panel"><div><strong>Your attraction collection is empty</strong><p>Add verified attractions, or import the four existing starter records. Starter records need location and tourism data verification.</p></div><button type="button" disabled={saving} onClick={onSeedPlaces}>{saving ? 'Saving…' : 'Import starter places'}</button></div>}
+      {saving && <p className="backend-saving" role="status">Saving changes to Firestore…</p>}
       {/* Global Notice Alert */}
       {notice && (
         <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-sm font-semibold text-emerald-900 flex items-center gap-3 shadow-xs" role="status">
@@ -165,9 +169,9 @@ function AdminDashboard({
                 ⓘ
               </div>
               <div>
-                <h4 className="font-bold text-stone-900 text-sm">Preview Mode Active</h4>
+                <h4 className="font-bold text-stone-900 text-sm">Connected to Firestore</h4>
                 <p className="text-sm text-stone-600">
-                  Changes are kept while this page is open and reset on refresh.
+                  Attraction changes are saved to Firestore and shared across devices.
                 </p>
               </div>
             </div>
@@ -417,7 +421,7 @@ function AdminDashboard({
           <div className="mb-6 pb-6 border-b border-stone-100">
             <h2 className="text-xl font-bold text-stone-900">Registered Accounts</h2>
             <p className="text-sm text-stone-500 mt-0.5">
-              Review active administrator and tourist accounts stored for this application.
+              Review active administrator and tourist accounts registered in Firebase.
             </p>
           </div>
 
