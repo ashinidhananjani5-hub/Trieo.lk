@@ -1,57 +1,94 @@
-function TouristDashboard({ places, savedPlaces, userName, notice, onToggleSavedPlace }) {
-  return (
-    <main className="dashboard-main">
-      <div className="dashboard-heading">
-        <div>
-          <span className="eyebrow alt">Tourist dashboard</span>
-          <h1>Plan your Padalangala day, {userName.split(' ')[0]}.</h1>
-          <p>Save the places you want to visit and keep your day-trip ideas together.</p>
-        </div>
-        <div className="dashboard-counter">
-          <strong>{savedPlaces.length}</strong>
-          <span>{savedPlaces.length === 1 ? 'place saved' : 'places saved'}</span>
-        </div>
-      </div>
-      {notice && <p className="notice" role="status">{notice}</p>}
-      <h2 className="dashboard-subtitle">Places near you</h2>
-      <div className="destination-grid">
-        {places.map((place) => {
-          const isSaved = savedPlaces.includes(place.id)
-          return (
-            <article key={place.id} className="destination-card">
-              <img src={place.images?.[0] || place.image} alt={place.name} />
-              <div className="card-body">
-                <div className="card-meta"><span>{(place.categories || [place.type]).join(', ')}</span><span>{place.distance}</span></div>
-                <h3>{place.name}</h3>
-                <p>{place.description}</p>
-                <div className="card-footer">
-                  <strong>{place.duration} visit</strong>
-                  <button type="button" onClick={() => onToggleSavedPlace(place.id)}>
-                    {isSaved ? 'Remove from plan' : 'Add to my plan'}
-                  </button>
-                </div>
-              </div>
-            </article>
-          )
-        })}
-      </div>
-      <section className="saved-plan">
-        <div>
-          <span className="eyebrow">Your day plan</span>
-          <h2>{savedPlaces.length ? 'Your saved places' : 'Your plan is ready to begin'}</h2>
-        </div>
-        {savedPlaces.length ? (
-          <ol>
-            {places.filter((place) => savedPlaces.includes(place.id)).map((place) => (
-              <li key={place.id}><strong>{place.name}</strong><span>{place.distance} · {place.duration}</span></li>
-            ))}
-          </ol>
-        ) : (
-          <p>Add an attraction above to start building your one-day visit plan.</p>
-        )}
-      </section>
-    </main>
-  )
-}
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 
+function TouristDashboard({ places, savedPlaces, userName, notice, onToggleSavedPlace, onViewPlace, onClearPlan, onMovePlace, isPlanOpen, onOpenPlan, onClosePlan, planSaving, planReady }) {
+  const planDialog = useRef(null)
+  const closeFromKeyboard = useEffectEvent(() => onClosePlan())
+  useEffect(() => {
+    if (!isPlanOpen) return
+    const previous = document.activeElement
+    const overflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    planDialog.current?.querySelector('button')?.focus()
+    const handleKey = event => {
+      // A place-details dialog can open above this drawer.
+      if (document.querySelector('.place-details-dialog')) return
+      if (event.key === 'Escape') closeFromKeyboard()
+      if (event.key !== 'Tab') return
+      const controls = [...planDialog.current.querySelectorAll('button, a[href]')].filter(element => !element.disabled)
+      const first = controls[0], last = controls[controls.length - 1]
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => { document.body.style.overflow = overflow; document.removeEventListener('keydown', handleKey); previous?.focus() }
+  }, [isPlanOpen])
+  const [category, setCategory] = useState('All')
+  const [search, setSearch] = useState('')
+  const categories = ['All', ...new Set(places.flatMap(place => place.categories || [place.type]))]
+  const savedList = savedPlaces.map(id => places.find(place => place.id === id)).filter(Boolean)
+  const results = places.filter(place => (category === 'All' || (place.categories || [place.type]).includes(category)) && [place.name, place.tag, place.description].some(value => value?.toLowerCase().includes(search.trim().toLowerCase())))
+  const reset = () => { setSearch(''); setCategory('All') }
+  return <main className="tourist-workspace home-container">
+    <section className="tourist-welcome">
+      <div><span className="eyebrow">YOUR TRAVEL WORKSPACE</span><h1>Hello, {userName?.split(' ')[0] || 'Explorer'}.</h1><p>Find a place you love. Add it to your plan. Make the day yours.</p></div>
+      <button type="button" onClick={onOpenPlan} className="tourist-plan-shortcut" aria-haspopup="dialog" aria-expanded={isPlanOpen}><span className="plan-shortcut-icon" aria-hidden="true">▤</span><div><strong>My day plan</strong><span>{savedList.length} {savedList.length === 1 ? 'place selected' : 'places selected'}</span></div><span aria-hidden="true">&gt;</span></button>
+    </section>
+    <div className="tourist-guide" aria-label="Planning steps"><span><b>1</b> Browse places</span><span><b>2</b> Add your favorites</span><span><b>3</b> Arrange your day plan</span></div>
+    {notice && <div role="status" className="auth-message success">{notice}</div>}
+    <div className="tourist-layout"><section id="tourist-attractions" className="tourist-discovery">
+      <div className="tourist-section-heading"><div><h2>Explore attractions</h2><p>Places around Padalangala for your next day out.</p></div></div>
+      <div className="tourist-filter-panel">
+        <label htmlFor="tourist-search" className="tourist-search-label">Find a place</label>
+        <div className="home-search"><span aria-hidden="true">⌕</span><input id="tourist-search" placeholder="Search by name or keyword…" value={search} onChange={event => setSearch(event.target.value)} />{search && <button type="button" onClick={() => setSearch('')} aria-label="Clear search">×</button>}</div>
+        <span className="tourist-filter-label">Choose an experience</span>
+        <div className="category-list tourist-filters" aria-label="Filter attractions by category">{categories.map(value => <button key={value} type="button" className={value === category ? 'selected' : ''} aria-pressed={value === category} onClick={() => setCategory(value)}>{value === 'All' ? 'All experiences' : value}</button>)}</div>
+        <div className="tourist-results-row"><span role="status" aria-live="polite">Showing {results.length} of {places.length} places{category !== 'All' ? ` · ${category}` : ''}</span>{(search || category !== 'All') && <button type="button" onClick={reset}>Reset filters</button>}</div>
+      </div>
+      {results.length ? <div className="tourist-card-grid">{results.map(place => { const selected = savedPlaces.includes(place.id); return <article key={place.id} className={`destination-card ${selected ? 'tourist-card-selected' : ''}`}><div className="destination-photo"><img src={place.images?.[0] || place.image} alt={place.name} loading="lazy" /><span className="place-category">{(place.categories || [place.type])[0]}</span>{selected && <span className="tourist-added">✓ In your plan</span>}<div className="photo-distance">◎ {place.distance} from Padalangala</div></div><div className="destination-body"><h3>{place.name}</h3><p>{place.description}</p><dl className="tourist-card-meta"><div><dt>Visit time</dt><dd>{place.duration || 'Not available'}</dd></div><div><dt>Opening hours</dt><dd>{place.hours || 'Not available'}</dd></div></dl><button type="button" className="tourist-detail-link" onClick={() => onViewPlace(place)}>View details & location &gt;</button><button type="button" className={`tourist-plan-button ${selected ? 'selected' : ''}`} aria-pressed={selected} disabled={planSaving || !planReady} onClick={() => onToggleSavedPlace(place.id)}>{selected ? '✓ In your plan · Remove' : '+ Add to plan'}</button></div></article> })}</div> : <div className="empty-destinations"><h3>No places found</h3><p>Try a different keyword or category.</p><button type="button" className="travel-button primary" onClick={reset}>Reset filters</button></div>}
+    </section>
+    {isPlanOpen && <div className="tourist-plan-overlay" onMouseDown={event => { if (event.target === event.currentTarget) onClosePlan() }}>
+    <aside ref={planDialog} id="tourist-plan" className="tourist-plan tourist-plan-drawer" role="dialog" aria-modal="true" aria-labelledby="day-plan-title">
+      <div className="tourist-plan-heading">
+        <button type="button" className="plan-drawer-close" onClick={onClosePlan} aria-label="Close my day plan">×</button>
+        <span className="eyebrow">ONE DAY. YOUR WAY.</span>
+        <h2 id="day-plan-title">My day plan <span aria-hidden="true">{savedList.length}</span></h2>
+        <p role="status" aria-live="polite">{savedList.length} {savedList.length === 1 ? 'place selected' : 'places selected'}</p>
+        <p className="plan-introduction">Use Earlier and Later to arrange your stops.</p>
+      </div>
+      <div className="plan-drawer-body">
+      {(!planReady || planSaving) && <p className="backend-saving" role="status">{planSaving ? 'Saving your plan…' : 'Loading your plan…'}</p>}
+      {savedList.length ? <>
+        <ol className="tourist-plan-list">
+          {savedList.map((place, index) => <li key={place.id}>
+            <div className="tourist-stop">
+              <span className="tourist-stop-number" aria-label={`Stop ${index + 1}`}>{index + 1}</span>
+              <img src={place.images?.[0] || place.image} alt="" loading="lazy" />
+              <div><h3 className="plan-place-name">{place.name}</h3><div className="plan-category-list">{(place.categories || [place.type]).filter(Boolean).map(value => <span key={value}>{value}</span>)}</div></div>
+            </div>
+            <dl className="plan-place-details">
+              <div><dt>Distance from Padalangala</dt><dd>{place.distance || 'Not available'}</dd></div>
+              <div><dt>Estimated visit</dt><dd>{place.duration || 'Not available'}</dd></div>
+              <div><dt>Opening hours</dt><dd>{place.hours || 'Not available'}</dd></div>
+            </dl>
+            <button type="button" className="plan-view-details" onClick={() => onViewPlace(place)} aria-label={`View details and location for ${place.name}`}>View details / location &gt;</button>
+            <div className="tourist-stop-actions">
+              <button type="button" disabled={planSaving || !planReady || index === 0} onClick={() => onMovePlace(place.id, -1)} aria-label={`Move ${place.name} earlier`}>↑ Earlier</button>
+              <button type="button" disabled={planSaving || !planReady || index === savedList.length - 1} onClick={() => onMovePlace(place.id, 1)} aria-label={`Move ${place.name} later`}>↓ Later</button>
+              <button type="button" disabled={planSaving || !planReady} onClick={() => onToggleSavedPlace(place.id)} aria-label={`Remove ${place.name} from plan`}>Remove</button>
+            </div>
+          </li>)}
+        </ol>
+        <button type="button" className="tourist-clear" disabled={planSaving || !planReady} onClick={() => { if (window.confirm(`Remove all ${savedList.length} selected places from your day plan?`)) onClearPlan() }}>Clear Plan</button>
+      </> : <div className="tourist-plan-empty">
+        <span aria-hidden="true">✦</span><h3>Your plan is empty</h3>
+        <p>Add places to start planning your one-day visit. You can change your selections anytime.</p>
+        <a href="#tourist-attractions" className="plan-browse-button" onClick={() => { reset(); onClosePlan() }}>Browse Places &gt;</a>
+      </div>}
+      <div className="tourist-plan-note">◎ Distances are from Padalangala, not between stops. Check opening hours before visiting.</div>
+      </div>
+      <footer className="plan-drawer-footer"><button type="button" onClick={onClosePlan}>Continue exploring &gt;</button></footer>
+    </aside></div>}
+    </div>
+  </main>
+}
 export default TouristDashboard
