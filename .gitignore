@@ -1,0 +1,41 @@
+# Installed dependencies and generated builds
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.tsbuildinfo
+
+# Local environment settings; keep safe templates in Git
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+
+# Firebase caches, emulator output and diagnostic logs
+.firebase/
+firebase-export*/
+firestore-export*/
+ui-debug.log*
+firebase-debug.log*
+firestore-debug.log*
+database-debug.log*
+logs/
+*.log
+
+# Private service-account credentials and signing keys
+*firebase-adminsdk*.json
+*service-account*.json
+serviceAccountKey.json
+application_default_credentials.json
+*.pem
+*.key
+
+# Local editor, OS and temporary files
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*.tmp
